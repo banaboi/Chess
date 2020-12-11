@@ -136,7 +136,6 @@ function showValidMoves(square, i, j) {
     if (square.classList.contains("pw")) {
         // if there isnt a piece in front of pawn and the pawn isnt at end of board, valid move
         if (i - 1 >= 0 && grid[i-1][j].classList.contains("empty")) {
-            console.log("yes")
             grid[i-1][j].classList.add("moves");
         }
 
@@ -166,6 +165,43 @@ function showValidMoves(square, i, j) {
         // check right
         if (i + 1 <= HEIGHT && j + 1 <= WIDTH && grid[i+1][j+1].classList[1].substring(1) === 'w') {
             grid[i+1][j+1].classList.add("moves");
+        }
+        
+    }
+
+    // White Knight
+    if (square.classList.contains("Nw")) {
+        // Check up and left
+        if (i - 2 >= 0 && j - 1 >= 0 && (grid[i-2][j-1].classList.contains("empty") || grid[i-2][j-1].classList[1].substring(1) === 'b')) {
+            grid[i-2][j-1].classList.add("moves");
+        } 
+        // Check up and right
+        if (i - 2 >= 0 && j + 1 <= WIDTH && (grid[i-2][j+1].classList.contains("empty") || grid[i-2][j+1].classList[1].substring(1) === 'b')) {
+            grid[i-2][j+1].classList.add("moves");
+        }
+        // Check right and up
+        if (i - 1 >= 0 && j + 2 <= WIDTH && (grid[i-1][j+2].classList.contains("empty") || grid[i-1][j+2].classList[1].substring(1) === 'b')) {
+            grid[i-1][j+2].classList.add("moves");
+        }
+        // Check left and up 
+        if (i - 1 >= 0 && j - 2 >= 0 && (grid[i-1][j-2].classList.contains("empty") || grid[i-1][j-2].classList[1].substring(1) === 'b')) {
+            grid[i-1][j-2].classList.add("moves");
+        }
+        // Check down and left
+        if (i + 2 <= HEIGHT && j - 1 >= 0 && (grid[i+2][j-1].classList.contains("empty") || grid[i+2][j-1].classList[1].substring(1) === 'b')) {
+            grid[i+2][j-1].classList.add("moves");
+        }
+        // Check down and right
+        if (i + 2 <= HEIGHT && j + 1 <= WIDTH && (grid[i+2][j+1].classList.contains("empty") || grid[i+2][j+1].classList[1].substring(1) === 'b')) {
+            grid[i+2][j+1].classList.add("moves");
+        }
+        // Check left and down
+        if (i + 1 <= HEIGHT && j + 2 <= WIDTH && (grid[i+1][j+2].classList.contains("empty") || grid[i+1][j+2].classList[1].substring(1) === 'b')) {
+            grid[i+1][j+2].classList.add("moves");
+        }
+        // Check right and down 
+        if (i + 1 <= HEIGHT && j - 2 >= 0 && (grid[i+1][j-2].classList.contains("empty") || grid[i+1][j-2].classList[1].substring(1) === 'b')) {
+            grid[i+1][j-2].classList.add("moves");
         }
     }
 }
