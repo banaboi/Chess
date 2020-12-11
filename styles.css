@@ -1,0 +1,123 @@
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    background-color: white;
+    width: 900px;
+    margin: 0 auto;
+  }
+
+  header {
+    margin: 0;
+    position: relative;
+    padding-top: 30px;
+    right: 30px;
+    text-align: center;
+    font-size: 30px;
+    font-weight: bold;
+    font-family: monospace;
+  }
+
+  .board {
+    position: absolute;
+    top: 150px;
+    right: 550px;
+    display: grid;
+    grid-template-columns: auto auto auto auto auto auto auto auto;
+    transform: scale(1.3, 1.3);
+  }
+  
+  .dark-square {
+    width: 20px;
+    background-color: grey;
+    border: 1px solid rgba(0, 0, 0, 0.8);
+    padding: 30px;
+    font-weight: bold;
+    font-family: monospace;
+    font-size: 25px;
+    text-align: center;
+  }
+
+  .light-square {
+    width: 20px;
+    background-color: white(255, 255, 255, 0.8);
+    border: 1px solid rgba(0, 0, 0, 0.8);
+    padding: 30px;
+    font-weight: bold;
+    font-family: monospace;
+    font-size: 25px;
+    text-align: center;
+  }
+
+  .rb {
+    background-image: url(images/b_rook_1x.png);
+    background-size: 63px;
+  }
+
+  .rw {
+    background-image: url(images/w_rook_1x.png);
+    background-size: 63px;
+  }
+
+  .Nw {
+    background-image: url(images/w_knight_1x.png);
+    background-size: 63px;
+  }
+
+  .Nb {
+    background-image: url(images/b_knight_1x.png);
+    background-size: 63px;
+  }
+
+  .bw {
+    background-image: url(images/w_bishop_1x.png);
+    background-size: 63px;
+  }
+
+  .bb {
+    background-image: url(images/b_bishop_1x.png);
+    background-size: 63px;
+  }
+
+  .qw {
+    background-image: url(images/w_queen_1x.png);
+    background-size: 65px;
+  }
+
+  .qb {
+    background-image: url(images/b_queen_1x.png);
+    background-size: 65px;
+  }
+
+  .kw {
+    background-image: url(images/w_king_1x.png);
+    background-size: 63px;
+  }
+
+  .kb {
+    background-image: url(images/b_king_1x.png);
+    background-size: 63px;
+  }
+
+  .pw {
+    background-image: url(images/w_pawn_1x.png);
+    background-size: 60px;
+  }
+
+  .pb {
+    background-image: url(images/b_pawn_1x.png);
+    background-size: 60px;
+  }
+
+  .ready {
+    background-color: red;
+  }
+
+  .moves {
+    background-color: yellow;
+  }
+
+  
