@@ -142,11 +142,11 @@ function showValidMoves(square, i, j) {
 
         // if there is a black piece diagonally from pawn, valid capture
         // check left
-        if (i - 1 >= 0 && j - 1 >= 0 && grid[i-1][j-1].getAttribute("class").substring(1) === 'b') {
+        if (i - 1 >= 0 && j - 1 >= 0 && grid[i-1][j-1].classList[1].substring(1) === 'b') {
             grid[i-1][j-1].classList.add("moves");
         }
         // check right
-        if (i - 1 >= 0 && j + 1 <= WIDTH && grid[i-1][j+1].getAttribute("class").substring(1) === 'b') {
+        if (i - 1 >= 0 && j + 1 <= WIDTH && grid[i-1][j+1].classList[1].substring(1) === 'b') {
             grid[i-1][j+1].classList.add("moves");
         }
     }
@@ -160,11 +160,11 @@ function showValidMoves(square, i, j) {
 
         // if there is a white piece diagonally from pawn, valid capture
         // check left
-        if (i + 1 <= HEIGHT && j - 1 >= 0 && grid[i+1][j-1].getAttribute("class").substring(1) === 'w') {
+        if (i + 1 <= HEIGHT && j - 1 >= 0 && grid[i+1][j-1].classList[1].substring(1) === 'w') {
             grid[i+1][j-1].classList.add("moves");
         }
         // check right
-        if (i + 1 <= HEIGHT && j + 1 <= WIDTH && grid[i+1][j+1].getAttribute("class").substring(1) === 'w') {
+        if (i + 1 <= HEIGHT && j + 1 <= WIDTH && grid[i+1][j+1].classList[1].substring(1) === 'w') {
             grid[i+1][j+1].classList.add("moves");
         }
     }
@@ -184,10 +184,15 @@ function reset() {
 }
 
 function move(pieceToMove, destinationSquare) {
-    pieceToMove.location.classList.remove("pw");
+    let pieceClass = pieceToMove.location.classList[1];
+    pieceToMove.location.classList.remove(pieceClass);
+    pieceToMove.location.classList.add("empty");
     pieceToMove.location.classList.remove("ready");
+    destinationSquare.classList.remove(destinationSquare.classList[1]);
     destinationSquare.classList.remove("moves");
-    destinationSquare.classList.add("pw");
+    destinationSquare.classList.remove("empty");
+    destinationSquare.classList.add(pieceClass);
+    reset();
 }
 
 init_board()
