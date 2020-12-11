@@ -134,6 +134,10 @@ function showValidMoves(square, i, j) {
     }
     // WHITE PAWN
     if (square.classList.contains("pw")) {
+        // Pawn can move two spots if not moved
+        if (i === 6 && i - 2 >= 0 && grid[i-2][j].classList.contains("empty") && grid[i-1][j].classList.contains("empty")) {
+            grid[i-2][j].classList.add("moves");
+        }
         // if there isnt a piece in front of pawn and the pawn isnt at end of board, valid move
         if (i - 1 >= 0 && grid[i-1][j].classList.contains("empty")) {
             grid[i-1][j].classList.add("moves");
@@ -152,6 +156,11 @@ function showValidMoves(square, i, j) {
 
     // BLACK PAWN
     if (square.classList.contains("pb")) {
+
+        // Pawn can move two spots if not moved
+        if (i === 1 && i + 2 >= 0 && grid[i+2][j].classList.contains("empty") && grid[i+1][j].classList.contains("empty")) {
+            grid[i+2][j].classList.add("moves");
+        }
         // if there isnt a piece in front of pawn and the pawn isnt at end of board, valid move
         if (i + 1 <= HEIGHT && grid[i+1][j].classList.contains("empty")) {
             grid[i+1][j].classList.add("moves");
