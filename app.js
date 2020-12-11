@@ -186,8 +186,8 @@ function reset() {
 function move(pieceToMove, destinationSquare) {
     let pieceClass = pieceToMove.location.classList[1];
     pieceToMove.location.classList.remove(pieceClass);
-    pieceToMove.location.classList.add("empty");
     pieceToMove.location.classList.remove("ready");
+    pieceToMove.location.classList.add("empty");
     destinationSquare.classList.remove(destinationSquare.classList[1]);
     destinationSquare.classList.remove("moves");
     destinationSquare.classList.remove("empty");
