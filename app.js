@@ -112,7 +112,7 @@ function init_pieces(square) {
 function control(square, i, j) {
     
     // classes: ready, moves
-    if (!square.classList.contains("ready") && !square.classList.contains("moves")) {
+    if (!isEmpty(square) && !isReady(square) && !isMoves(square)) {
         reset();
         square.classList.add("ready");
         pieceToMove.i = i;
@@ -122,95 +122,250 @@ function control(square, i, j) {
     } 
 
 
-    if (square.classList.contains("moves")) {
+    if (isMoves(square)) {
         move(pieceToMove, square);
     }
 }
 
 function showValidMoves(square, i, j) {
-    // Square is empty, return
-    if (square.classList.contains("empty")) {
-        return;
-    }
+    
     // WHITE PAWN
     if (square.classList.contains("pw")) {
-        // Pawn can move two spots if not moved
-        if (i === 6 && i - 2 >= 0 && grid[i-2][j].classList.contains("empty") && grid[i-1][j].classList.contains("empty")) {
-            grid[i-2][j].classList.add("moves");
-        }
-        // if there isnt a piece in front of pawn and the pawn isnt at end of board, valid move
-        if (i - 1 >= 0 && grid[i-1][j].classList.contains("empty")) {
-            grid[i-1][j].classList.add("moves");
-        }
-
-        // if there is a black piece diagonally from pawn, valid capture
-        // check left
-        if (i - 1 >= 0 && j - 1 >= 0 && grid[i-1][j-1].classList[1].substring(1) === 'b') {
-            grid[i-1][j-1].classList.add("moves");
-        }
-        // check right
-        if (i - 1 >= 0 && j + 1 <= WIDTH && grid[i-1][j+1].classList[1].substring(1) === 'b') {
-            grid[i-1][j+1].classList.add("moves");
-        }
+        whitePawnMoves(i,j);
     }
 
     // BLACK PAWN
     if (square.classList.contains("pb")) {
-
-        // Pawn can move two spots if not moved
-        if (i === 1 && i + 2 >= 0 && grid[i+2][j].classList.contains("empty") && grid[i+1][j].classList.contains("empty")) {
-            grid[i+2][j].classList.add("moves");
-        }
-        // if there isnt a piece in front of pawn and the pawn isnt at end of board, valid move
-        if (i + 1 <= HEIGHT && grid[i+1][j].classList.contains("empty")) {
-            grid[i+1][j].classList.add("moves");
-        }
-
-        // if there is a white piece diagonally from pawn, valid capture
-        // check left
-        if (i + 1 <= HEIGHT && j - 1 >= 0 && grid[i+1][j-1].classList[1].substring(1) === 'w') {
-            grid[i+1][j-1].classList.add("moves");
-        }
-        // check right
-        if (i + 1 <= HEIGHT && j + 1 <= WIDTH && grid[i+1][j+1].classList[1].substring(1) === 'w') {
-            grid[i+1][j+1].classList.add("moves");
-        }
-        
+        blackPawnMoves(i,j);
+       
     }
 
-    // White Knight
+    // WHITE KNIGHT
     if (square.classList.contains("Nw")) {
-        // Check up and left
-        if (i - 2 >= 0 && j - 1 >= 0 && (grid[i-2][j-1].classList.contains("empty") || grid[i-2][j-1].classList[1].substring(1) === 'b')) {
+        whiteKnightMoves(i,j);
+    }
+
+    // WHITE BISHOP
+    if (square.classList.contains("bw")) {
+        whiteBishopMoves(i,j);
+    }
+
+    // WHITE ROOK
+    if (square.classList.contains("rw")) {
+        whiteRookMoves(i,j);
+    }
+
+    // WHITE QUEEN
+    if (square.classList.contains("qw")) {
+        whiteBishopMoves(i,j);
+        whiteRookMoves(i,j);
+    }
+
+    // WHITE KING
+    if (square.classList.contains("kw")) {
+        whiteKingMoves(i,j);
+    }
+}
+
+function whiteKnightMoves(i, j) {
+    // Check up and left
+    if (i - 2 >= 0 && j - 1 >= 0) {
+        if (isEmpty(grid[i-2][j-1]) || isBlackPiece(grid[i-2][j-1])) {
             grid[i-2][j-1].classList.add("moves");
         } 
-        // Check up and right
-        if (i - 2 >= 0 && j + 1 <= WIDTH && (grid[i-2][j+1].classList.contains("empty") || grid[i-2][j+1].classList[1].substring(1) === 'b')) {
+    }
+    
+    // Check up and right
+    if (i - 2 >= 0 && j + 1 < WIDTH) {
+        if (isEmpty(grid[i-2][j+1]) || isBlackPiece(grid[i-2][j+1])) {
             grid[i-2][j+1].classList.add("moves");
         }
-        // Check right and up
-        if (i - 1 >= 0 && j + 2 <= WIDTH && (grid[i-1][j+2].classList.contains("empty") || grid[i-1][j+2].classList[1].substring(1) === 'b')) {
+    }
+    
+    // Check right and up
+    if (i - 1 >= 0 && j + 2 < WIDTH) {
+        if (isEmpty(grid[i-1][j+2]) || isBlackPiece(grid[i-1][j+2])) {
             grid[i-1][j+2].classList.add("moves");
         }
-        // Check left and up 
-        if (i - 1 >= 0 && j - 2 >= 0 && (grid[i-1][j-2].classList.contains("empty") || grid[i-1][j-2].classList[1].substring(1) === 'b')) {
+    }
+    
+    // Check left and up 
+    if (i - 1 >= 0 && j - 2 >= 0) {
+        if (isEmpty(grid[i-1][j-2]) || isBlackPiece(grid[i-1][j-2])) {
             grid[i-1][j-2].classList.add("moves");
         }
-        // Check down and left
-        if (i + 2 <= HEIGHT && j - 1 >= 0 && (grid[i+2][j-1].classList.contains("empty") || grid[i+2][j-1].classList[1].substring(1) === 'b')) {
+    }
+    
+    // Check down and left
+    if (i + 2 < HEIGHT && j - 1 >= 0) {
+        if (isEmpty(grid[i+2][j-1]) || isBlackPiece(grid[i+2][j-1])) {
             grid[i+2][j-1].classList.add("moves");
         }
-        // Check down and right
-        if (i + 2 <= HEIGHT && j + 1 <= WIDTH && (grid[i+2][j+1].classList.contains("empty") || grid[i+2][j+1].classList[1].substring(1) === 'b')) {
+    }
+    
+    // Check down and right
+    if (i + 2 < HEIGHT && j + 1 < WIDTH) {
+        if  (isEmpty(grid[i+2][j+1]) || isBlackPiece(grid[i+2][j+1])) {
             grid[i+2][j+1].classList.add("moves");
         }
-        // Check left and down
-        if (i + 1 <= HEIGHT && j + 2 <= WIDTH && (grid[i+1][j+2].classList.contains("empty") || grid[i+1][j+2].classList[1].substring(1) === 'b')) {
+    }
+    
+    // Check left and down
+    if (i + 1 < HEIGHT && j + 2 < WIDTH) {
+        if (isEmpty(grid[i+1][j+2]) || isBlackPiece(grid[i+1][j+2])) {
             grid[i+1][j+2].classList.add("moves");
         }
-        // Check right and down 
-        if (i + 1 <= HEIGHT && j - 2 >= 0 && (grid[i+1][j-2].classList.contains("empty") || grid[i+1][j-2].classList[1].substring(1) === 'b')) {
+    }
+    
+    // Check right and down 
+    if (i + 1 < HEIGHT && j - 2 >= 0) {
+        if (isEmpty(grid[i+1][j-2]) || isBlackPiece(grid[i+1][j-2])) {
             grid[i+1][j-2].classList.add("moves");
+        }
+    }
+}
+
+function blackPawnMoves(i, j) {
+     // Pawn can move two spots if not moved
+     if (i === 1 && i + 2 >= 0 && isEmpty(grid[i+2][j]) && isEmpty(grid[i+1][j])) {
+        grid[i+2][j].classList.add("moves");
+    }
+    // if there isnt a piece in front of pawn and the pawn isnt at end of board, valid move
+    if (i + 1 < HEIGHT && isEmpty(grid[i+1][j])) {
+        grid[i+1][j].classList.add("moves");
+    }
+
+    // if there is a white piece diagonally from pawn, valid capture
+    // check left
+    if (i + 1 < HEIGHT && j - 1 >= 0 && isWhitePiece(grid[i+1][j-1])) {
+        grid[i+1][j-1].classList.add("moves");
+    }
+    // check right
+    if (i + 1 < HEIGHT && j + 1 < WIDTH && isWhitePiece(grid[i+1][j+1])) {
+        grid[i+1][j+1].classList.add("moves");
+    }
+    
+}
+
+function whitePawnMoves(i,j) {
+    // Pawn can move two spots if not moved
+    if (i === 6 && i - 2 >= 0 && isEmpty(grid[i-2][j]) && isEmpty(grid[i-1][j])) {
+        grid[i-2][j].classList.add("moves");
+    }
+    // if there isnt a piece in front of pawn and the pawn isnt at end of board, valid move
+    if (i - 1 >= 0 && isEmpty(grid[i-1][j])) {
+        grid[i-1][j].classList.add("moves");
+    }
+
+    // if there is a black piece diagonally from pawn, valid capture
+    // check left
+    if (i - 1 >= 0 && j - 1 >= 0 && isBlackPiece(grid[i-1][j-1])) {
+        grid[i-1][j-1].classList.add("moves");
+    }
+    // check right
+    if (i - 1 >= 0 && j + 1 <= WIDTH && isBlackPiece(grid[i-1][j+1])) {
+        grid[i-1][j+1].classList.add("moves");
+    }
+}
+
+function whiteBishopMoves(i,j) {
+
+    // Upper Left diagonal
+    let iCurr = i - 1;
+    let jCurr = j - 1;
+    while (iCurr >= 0 && jCurr >= 0 && !isWhitePiece(grid[iCurr][jCurr])) {
+        grid[iCurr][jCurr].classList.add("moves");
+        if (isBlackPiece(grid[iCurr][jCurr])) break;
+
+        iCurr--;
+        jCurr--;
+
+    }
+    
+    // Upper right diagonal
+    iCurr = i - 1;
+    jCurr = j + 1;
+    while (iCurr >= 0 && jCurr < WIDTH && !isWhitePiece(grid[iCurr][jCurr])) {
+        grid[iCurr][jCurr].classList.add("moves");
+        if (isBlackPiece(grid[iCurr][jCurr])) break;
+
+        iCurr--;
+        jCurr++;
+    }
+
+    // Lower left diagonal
+    iCurr = i + 1;
+    jCurr = j - 1;
+    while (iCurr < HEIGHT && jCurr >= 0 && !isWhitePiece(grid[iCurr][jCurr])) {
+        grid[iCurr][jCurr].classList.add("moves");
+        if (isBlackPiece(grid[iCurr][jCurr])) break;
+
+        iCurr++;
+        jCurr--;
+    }
+
+    // Lower right diagonal
+    iCurr = i + 1;
+    jCurr = j + 1;
+    while (iCurr < HEIGHT && jCurr < WIDTH && !isWhitePiece(grid[iCurr][jCurr])) {
+        grid[iCurr][jCurr].classList.add("moves");
+        if (isBlackPiece(grid[iCurr][jCurr])) break;
+
+        iCurr++;
+        jCurr++;
+    }
+}
+
+function whiteRookMoves(i,j) {
+    // Up 
+    let iCurr = i - 1;
+    let jCurr = j;
+    while (iCurr >= 0 && !isWhitePiece(grid[iCurr][jCurr])) {
+        grid[iCurr][jCurr].classList.add("moves");
+        if (isBlackPiece(grid[iCurr][jCurr])) break;
+
+        iCurr--;
+
+    }
+    
+    // Down
+    iCurr = i + 1;
+    jCurr = j;
+    while (iCurr < HEIGHT && !isWhitePiece(grid[iCurr][jCurr])) {
+        grid[iCurr++][jCurr++].classList.add("moves");
+        if (isBlackPiece(grid[iCurr][jCurr])) break;
+
+        iCurr++;
+    }
+
+    // Left
+    iCurr = i;
+    jCurr = j - 1;
+    while (jCurr >= 0 && !isWhitePiece(grid[iCurr][jCurr])) {
+        grid[iCurr][jCurr--].classList.add("moves");
+        if (isBlackPiece(grid[iCurr][jCurr])) break;
+
+        jCurr--;
+    }
+
+    // Right
+    iCurr = i;
+    jCurr = j + 1;
+    while (jCurr < WIDTH && !isWhitePiece(grid[iCurr][jCurr])) {
+        grid[iCurr][jCurr++].classList.add("moves");
+        if (isBlackPiece(grid[iCurr][jCurr])) break;
+
+        jCurr++;
+    }
+}
+
+function whiteKingMoves(i,j) {
+    for (let row = i - 1; row < i + 2; row++) {
+        for (let col = j - 1; col < j + 2; col++) {
+            if (row >= 0 && row < HEIGHT && col >= 0 && col < WIDTH && !isWhitePiece(grid[row][col])) {
+                grid[row][col].classList.add("moves");
+                
+            }
         }
     }
 }
@@ -219,10 +374,10 @@ function reset() {
     for (let i = 0; i < HEIGHT; i++) {
         for (let j = 0; j < WIDTH; j++) {
             if (grid[i][j].getAttribute("class", "ready")) {
-                grid[i][j].classList.remove("class", "ready");
+                grid[i][j].classList.remove("ready");
             }
             if (grid[i][j].getAttribute("class", "moves")) {
-                grid[i][j].classList.remove("class", "moves")
+                grid[i][j].classList.remove("moves")
             }
         }
     }
@@ -239,6 +394,28 @@ function move(pieceToMove, destinationSquare) {
     destinationSquare.classList.add(pieceClass);
     reset();
 }
+
+function isEmpty(square) {
+    return square.classList.contains("empty");
+}
+
+function isReady(square) {
+    return square.classList.contains("ready");
+}
+
+function isMoves(square) {
+    return square.classList.contains("moves");
+} 
+
+function isBlackPiece(square) {
+    return square.classList[1].substring(1) === 'b';
+}
+
+function isWhitePiece(square) {
+    return square.classList[1].substring(1) === 'w';
+}
+
+
 
 init_board()
 
