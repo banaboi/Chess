@@ -19,6 +19,15 @@ class Game {
                 this.j = 0;
             }
         };
+
+        this.state = [  ["rb", "Nb", "bb", "qb", "kb", "bb", "Nb", "rb" ],
+                        ["pb", "pb", "pb", "pb", "pb", "pb", "pb", "pb" ],
+                        [" ", " ", " ", " ", " ", " ", " ", " "],
+                        [" ", " ", " ", " ", " ", " ", " ", " "],
+                        [" ", " ", " ", " ", " ", " ", " ", " "],
+                        [" ", " ", " ", " ", " ", " ", " ", " "],
+                        ["pw", "pw", "pw", "pw", "pw", "pw", "pw", "pw" ],
+                        ["rw", "Nw", "bw", "qw", "kw", "bw", "Nw", "rw" ] ];
     }
 
     incrementGame() {
@@ -31,8 +40,7 @@ class Game {
         if (this.isCheckMate("b")) {
             console.log("White won!");
         }
-        console.log("White king is checked: " + isInCheck("w"));
-        console.log("Black king is checked: " + isInCheck("b"));
+        console.log(this.state);
     }
 
     isCheckMate(color) {
@@ -183,7 +191,7 @@ function control(square, i, j) {
     }
 
     // Square selected can be made ready, hence ready
-    if (!isEmpty(square) && !isReady(square) && !isMoves(square)) {
+    if (!isEmpty(game.state[i][j]) && !isReady(square) && !isMoves(square)) {
         reset();
         square.classList.add("ready");
         pieceToMove.i = i;
@@ -224,81 +232,210 @@ function showValidMoves(square, i, j) {
 }
 
 function knightMoves(color, i, j) {
+
+    // Logic is determined by which color knight is being moved
+    let iKing = (color === "w") ? game.whiteKingLocation.i : game.blackKingLocation.i;
+    let jKing = (color === "w") ? game.whiteKingLocation.j : game.blackKingLocation.j;
+    let knight = (color === "w") ? "Nw" : "Nb";
+    
     // Check up and left
     if (i - 2 >= 0 && j - 1 >= 0) {
-        if (isEmpty(grid[i-2][j-1]) || isOpposingPiece(color, grid[i-2][j-1])) {
-            grid[i-2][j-1].classList.add("moves");
+        if (isEmpty(game.state[i-2][j-1]) || isOpposingPiece(color, grid[i-2][j-1])) {
+            
+            // Simulate movement
+            let pieceTaken = game.state[i-2][j-1];
+            game.state[i-2][j-1] = knight;
+            game.state[i][j] = " ";
+            // If the white king is attacked after move, illegal
+            if (!isAttacked(color, iKing, jKing)) {
+                grid[i-2][j-1].classList.add("moves");
+            }
+            game.state[i-2][j-1] = pieceTaken;
+            game.state[i][j] = knight;
+            
         } 
     }
     
     // Check up and right
     if (i - 2 >= 0 && j + 1 < WIDTH) {
-        if (isEmpty(grid[i-2][j+1]) || isOpposingPiece(color,grid[i-2][j+1])) {
-            grid[i-2][j+1].classList.add("moves");
+        if (isEmpty(game.state[i-2][j+1]) || isOpposingPiece(color,grid[i-2][j+1])) {
+
+            // Simulate movement
+            let pieceTaken = game.state[i-2][j+1];
+            game.state[i-2][j+1] = knight;
+            game.state[i][j] = " ";
+            // If the white king is attacked after move, illegal
+            if (!isAttacked(color, iKing, jKing)) {
+                grid[i-2][j+1].classList.add("moves");
+            }
+            game.state[i-2][j+1] = pieceTaken;
+            game.state[i][j] = knight;
         }
     }
     
     // Check right and up
     if (i - 1 >= 0 && j + 2 < WIDTH) {
-        if (isEmpty(grid[i-1][j+2]) || isOpposingPiece(color,grid[i-1][j+2])) {
-            grid[i-1][j+2].classList.add("moves");
+        if (isEmpty(game.state[i-1][j+2]) || isOpposingPiece(color,grid[i-1][j+2])) {
+            // Simulate movement
+            let pieceTaken = game.state[i-1][j+2];
+            game.state[i-1][j+2] = knight;
+            game.state[i][j] = " ";
+            // If the white king is attacked after move, illegal
+            if (!isAttacked(color, iKing, jKing)) {
+                grid[i-1][j+2].classList.add("moves");
+            }
+            game.state[i-1][j+2] = pieceTaken;
+            game.state[i][j] = knight;
         }
     }
     
     // Check left and up 
     if (i - 1 >= 0 && j - 2 >= 0) {
-        if (isEmpty(grid[i-1][j-2]) || isOpposingPiece(color,grid[i-1][j-2])) {
-            grid[i-1][j-2].classList.add("moves");
+        if (isEmpty(game.state[i-1][j-2]) || isOpposingPiece(color,grid[i-1][j-2])) {
+            // Simulate movement
+            let pieceTaken = game.state[i-1][j-2];
+            game.state[i-1][j-2] = knight;
+            game.state[i][j] = " ";
+            // If the white king is attacked after move, illegal
+            if (!isAttacked(color, iKing, jKing)) {
+                grid[i-1][j-2].classList.add("moves");
+            }
+            game.state[i-1][j-2] = pieceTaken;
+            game.state[i][j] = knight;
         }
     }
     
     // Check down and left
     if (i + 2 < HEIGHT && j - 1 >= 0) {
-        if (isEmpty(grid[i+2][j-1]) || isOpposingPiece(color,grid[i+2][j-1])) {
-            grid[i+2][j-1].classList.add("moves");
+        if (isEmpty(game.state[i+2][j-1]) || isOpposingPiece(color,grid[i+2][j-1])) {
+            // Simulate movement
+            let pieceTaken = game.state[i+2][j-1];
+            game.state[i+2][j-1] = knight;
+            game.state[i][j] = " ";
+            // If the white king is attacked after move, illegal
+            if (!isAttacked(color, iKing, jKing)) {
+                grid[i+2][j-1].classList.add("moves");
+            }
+            game.state[i+2][j-1] = pieceTaken;
+            game.state[i][j] = knight;
         }
     }
     
     // Check down and right
     if (i + 2 < HEIGHT && j + 1 < WIDTH) {
-        if  (isEmpty(grid[i+2][j+1]) || isOpposingPiece(color,grid[i+2][j+1])) {
-            grid[i+2][j+1].classList.add("moves");
+        if  (isEmpty(game.state[i+2][j+1]) || isOpposingPiece(color,grid[i+2][j+1])) {
+            // Simulate movement
+            let pieceTaken = game.state[i+2][j+1];
+            game.state[i+2][j+1] = knight;
+            game.state[i][j] = " ";
+            // If the white king is attacked after move, illegal
+            if (!isAttacked(color, iKing, jKing)) {
+                grid[i+2][j+1].classList.add("moves");
+            }
+            game.state[i+2][j+1] = pieceTaken;
+            game.state[i][j] = knight;
         }
     }
     
     // Check left and down
     if (i + 1 < HEIGHT && j + 2 < WIDTH) {
-        if (isEmpty(grid[i+1][j+2]) || isOpposingPiece(color,grid[i+1][j+2])) {
-            grid[i+1][j+2].classList.add("moves");
+        if (isEmpty(game.state[i+1][j+2]) || isOpposingPiece(color,grid[i+1][j+2])) {
+            // Simulate movement
+            let pieceTaken = game.state[i+1][j+2];
+            game.state[i+1][j+2] = knight;
+            game.state[i][j] = " ";
+            // If the white king is attacked after move, illegal
+            if (!isAttacked(color, iKing, jKing)) {
+                grid[i+1][j+2].classList.add("moves");
+            }
+            game.state[i+1][j+2] = pieceTaken;
+            game.state[i][j] = knight;
         }
     }
     
     // Check right and down 
     if (i + 1 < HEIGHT && j - 2 >= 0) {
-        if (isEmpty(grid[i+1][j-2]) || isOpposingPiece(color,grid[i+1][j-2])) {
-            grid[i+1][j-2].classList.add("moves");
+        if (isEmpty(game.state[i+1][j-2]) || isOpposingPiece(color,grid[i+1][j-2])) {
+            // Simulate movement
+            let pieceTaken = game.state[i+1][j-2];
+            game.state[i+1][j-2] = knight;
+            game.state[i][j] = " ";
+
+            // If the white king is attacked after move, illegal
+            if (!isAttacked(color, iKing, jKing)) {
+                grid[i+1][j-2].classList.add("moves");
+            }
+            game.state[i+1][j-2] = pieceTaken;
+            game.state[i][j] = knight;
         }
     }
 }
 
 function blackPawnMoves(color, i, j) {
      // Pawn can move two spots if not moved
-     if (i === 1 && i + 2 >= 0 && isEmpty(grid[i+2][j]) && isEmpty(grid[i+1][j])) {
-        grid[i+2][j].classList.add("moves");
+     if (i === 1 && i + 2 >= 0 && isEmpty(game.state[i+2][j]) && isEmpty(game.state[i+1][j])) {
+
+        // Simulate movement
+        let pieceTaken = game.state[i+2][j];
+        game.state[i+2][j] = "pb";
+        game.state[i][j] = " ";
+
+        // If the white king is attacked after move, illegal
+        if (!isAttacked("b", game.blackKingLocation.i, game.blackKingLocation.j)) {
+            grid[i+2][j].classList.add("moves");
+        }
+
+        game.state[i+2][j] = pieceTaken;
+        game.state[i][j] = "pb"
+        
     }
     // if there isnt a piece in front of pawn and the pawn isnt at end of board, valid move
-    if (i + 1 < HEIGHT && isEmpty(grid[i+1][j])) {
-        grid[i+1][j].classList.add("moves");
+    if (i + 1 < HEIGHT && isEmpty(game.state[i+1][j])) {
+
+        // Simulate movement
+        let pieceTaken = game.state[i+1][j];
+        game.state[i+1][j] = "pb";
+        game.state[i][j] = " ";
+
+        // If the white king is attacked after move, illegal
+        if (!isAttacked("b", game.blackKingLocation.i, game.blackKingLocation.j)) {
+            grid[i+1][j].classList.add("moves");
+        }
+        game.state[i+1][j] = pieceTaken;
+        game.state[i][j] = "pb"
     }
 
     // if there is a white piece diagonally from pawn, valid capture
     // check left
     if (i + 1 < HEIGHT && j - 1 >= 0 && isOpposingPiece(color, grid[i+1][j-1])) {
-        grid[i+1][j-1].classList.add("moves");
+        // Simulate
+        let pieceTaken = game.state[i+1][j-1];
+        game.state[i+1][j-1] = "pb";
+        game.state[i][j] = " ";
+
+        // If the white king is attacked after move, illegal
+        if (!isAttacked("b", game.blackKingLocation.i, game.blackKingLocation.j)) {
+            grid[i+1][j-1].classList.add("moves");
+        }
+
+        game.state[i+1][j-1] = pieceTaken;
+        game.state[i][j] = "pb"
     }
+
     // check right
     if (i + 1 < HEIGHT && j + 1 < WIDTH && isOpposingPiece(color,grid[i+1][j+1])) {
-        grid[i+1][j+1].classList.add("moves");
+       // Simulate
+       let pieceTaken = game.state[i+1][j-1];
+       game.state[i+1][j+1] = "pb";
+       game.state[i][j] = " ";
+
+       // If the white king is attacked after move, illegal
+       if (!isAttacked("b", game.blackKingLocation.i, game.blackKingLocation.j)) {
+           grid[i+1][j+1].classList.add("moves");
+       }
+
+       game.state[i+1][j+1] = pieceTaken;
+       game.state[i][j] = "pb"
     }
     
 }
@@ -306,22 +443,76 @@ function blackPawnMoves(color, i, j) {
 function whitePawnMoves(color, i,j) {
 
     // Pawn can move two spots if not moved
-    if (i === 6 && i - 2 >= 0 && isEmpty(grid[i-2][j]) && isEmpty(grid[i-1][j])) {
-        grid[i-2][j].classList.add("moves");
+    if (i === 6 && i - 2 >= 0 && isEmpty(game.state[i-2][j]) && isEmpty(game.state[i-1][j])) {
+
+        // Simulate movement
+        let pieceTaken = game.state[i - 2][j];
+        game.state[i-2][j] = "pw";
+        game.state[i][j] = " ";
+
+        // If the white king is attacked after move, illegal
+        if (!isAttacked("w", game.whiteKingLocation.i, game.whiteKingLocation.j)) {
+            grid[i-2][j].classList.add("moves");
+        } 
+
+        // Revert
+        game.state[i - 2][j] = pieceTaken;
+        game.state[i][j] = "pw";
+        
     }
-    // if there isnt a piece in front of pawn and the pawn isnt at end of board, valid move
-    if (i - 1 >= 0 && isEmpty(grid[i-1][j])) {
-        grid[i-1][j].classList.add("moves");
+    // if there isnt a piece in front of pawn and the pawn isnt at end of board, psuedo valid move
+    if (i - 1 >= 0 && isEmpty(game.state[i-1][j])) {
+
+        // Simulate movement
+        let pieceTaken = game.state[i - 1][j];
+        game.state[i-1][j] = "pw";
+        game.state[i][j] = " ";
+
+        // If the white king is attacked after move, illegal
+        if (!isAttacked("w", game.whiteKingLocation.i, game.whiteKingLocation.j)) {
+            grid[i-1][j].classList.add("moves");
+        } 
+        // Revert
+        game.state[i - 1][j] = pieceTaken;
+        game.state[i][j] = "pw";
+        
     }
 
     // if there is a black piece diagonally from pawn, valid capture
     // check left
     if (i - 1 >= 0 && j - 1 >= 0 && isOpposingPiece(color, grid[i-1][j-1])) {
-        grid[i-1][j-1].classList.add("moves");
+
+        // Simulate 
+        let pieceTaken = game.state[i-1][j-1];
+        game.state[i-1][j-1] = "pw";
+        game.state[i][j] = " ";
+
+        // If the white king is attacked after move, illegal
+        if (!isAttacked("w", game.whiteKingLocation.i, game.whiteKingLocation.j)) {
+            grid[i-1][j-1].classList.add("moves");
+        } 
+
+        // Revert
+        game.state[i-1][j-1] = pieceTaken;
+        game.state[i][j] = "pw";
     }
+
     // check right
     if (i - 1 >= 0 && j + 1 < WIDTH && isOpposingPiece(color, grid[i-1][j+1])) {
-        grid[i-1][j+1].classList.add("moves");
+
+        // Simulate 
+        let pieceTaken = game.state[i-1][j+1];
+        game.state[i-1][j+1] = "pw";
+        game.state[i][j] = " ";
+
+        // If the white king is attacked after move, illegal
+        if (!isAttacked("w", game.whiteKingLocation.i, game.whiteKingLocation.j)) {
+            grid[i-1][j+1].classList.add("moves");
+        } 
+
+        // Revert
+        game.state[i-1][j+1] = pieceTaken;
+        game.state[i][j] = "pw";
     }
 }
 
@@ -431,7 +622,7 @@ function kingMoves(color, i,j) {
 
 function squaresAreEmpty(start,end, i) {
     for (let j = start; j < end; j++) {
-        if (!isEmpty(grid[i][j])) {
+        if (!isEmpty(game.state[i][j])) {
             return false;
         }
     }
@@ -460,11 +651,11 @@ function pawnChecks(color, i,j) {
     let attackingPiece = (color === "w") ? "pb" : "pw";
 
     // Check left
-    if (direction && j - 1 >= 0 && grid[index][j-1].classList.contains(attackingPiece)) {
+    if (direction && j - 1 >= 0 && game.state[index][j-1] === attackingPiece) {
         return true;
     }
     // check right
-    if (direction && j + 1 < WIDTH && grid[index][j+1].classList.contains(attackingPiece)) {
+    if (direction && j + 1 < WIDTH && game.state[index][j+1] === attackingPiece) {
         return true;
     }
 
@@ -478,56 +669,56 @@ function knightChecks(color, i,j) {
 
     // Check up and left
     if (i - 2 >= 0 && j - 1 >= 0) {
-        if (grid[i-2][j-1].classList.contains(attackingPiece)) {
+        if (game.state[i-2][j-1] === attackingPiece) {
             return true;
         } 
     }
 
     // Check up and right
     if (i - 2 >= 0 && j + 1 < WIDTH) {
-        if (grid[i-2][j+1].classList.contains(attackingPiece)) {
+        if (game.state[i-2][j+1] === attackingPiece) {
             return true;
         }
     }
 
     // Check right and up
     if (i - 1 >= 0 && j + 2 < WIDTH) {
-        if (grid[i-1][j+2].classList.contains(attackingPiece)) {
+        if (game.state[i-1][j+2] === attackingPiece) {
             return true;
         }
     }
 
     // Check left and up 
     if (i - 1 >= 0 && j - 2 >= 0) {
-        if (grid[i-1][j-2].classList.contains(attackingPiece)) {
+        if (game.state[i-1][j-2] === attackingPiece) {
             return true;
         }
     }
 
     // Check down and left
     if (i + 2 < HEIGHT && j - 1 >= 0) {
-        if (grid[i+2][j-1].classList.contains(attackingPiece)) {
+        if (game.state[i+2][j-1] === attackingPiece) {
             return true;
         }
     }
 
     // Check down and right
     if (i + 2 < HEIGHT && j + 1 < WIDTH) {
-        if (grid[i+2][j-1].classList.contains(attackingPiece)) {
+        if (game.state[i+2][j-1] === attackingPiece) {
             return true;
         }
     }
 
     // Check left and down
     if (i + 1 < HEIGHT && j + 2 < WIDTH) {
-        if (grid[i+1][j+2].classList.contains(attackingPiece)) {
+        if (game.state[i+1][j+2] === attackingPiece) {
             return true;
         }
     }
 
     // Check right and down 
     if (i + 1 < HEIGHT && j - 2 >= 0) {
-        if (grid[i+1][j-2].classList.contains(attackingPiece)) {
+        if (game.state[i+1][j-2] === attackingPiece) {
             return true;
         }
     }
@@ -546,9 +737,9 @@ function diagonalChecks(color, i,j) {
     let jCurr = j - 1;
     while (iCurr >= 0 && jCurr >= 0) {
         // Found a bishop or queen
-        if (grid[iCurr][jCurr].classList.contains(attackingPieces[0]) || grid[iCurr][jCurr].classList.contains(attackingPieces[1])) return true;
+        if (game.state[iCurr][jCurr] === attackingPieces[0] || game.state[iCurr][jCurr] === attackingPieces[1]) return true;
         // Found another piece blocking, not checked
-        if (!isEmpty(grid[iCurr][jCurr])) break;
+        if (!isEmpty(game.state[iCurr][jCurr])) break;
 
         iCurr--;
         jCurr--;
@@ -560,9 +751,9 @@ function diagonalChecks(color, i,j) {
     jCurr = j + 1;
     while (iCurr >= 0 && jCurr < WIDTH) {
         // Found a bishop or queen
-        if (grid[iCurr][jCurr].classList.contains(attackingPieces[0]) || grid[iCurr][jCurr].classList.contains(attackingPieces[1])) return true;
+        if (game.state[iCurr][jCurr] === attackingPieces[0] || game.state[iCurr][jCurr] === attackingPieces[1]) return true;
         // Found another piece blocking, not checked
-        if (!isEmpty(grid[iCurr][jCurr])) break;
+        if (!isEmpty(game.state[iCurr][jCurr])) break;
 
         iCurr--;
         jCurr++;
@@ -573,9 +764,9 @@ function diagonalChecks(color, i,j) {
     jCurr = j - 1;
     while (iCurr < HEIGHT && jCurr >= 0) {
         // Found a bishop or queen
-        if (grid[iCurr][jCurr].classList.contains(attackingPieces[0]) || grid[iCurr][jCurr].classList.contains(attackingPieces[1])) return true;
+        if (game.state[iCurr][jCurr] === attackingPieces[0] || game.state[iCurr][jCurr] === attackingPieces[1]) return true;
         // Found another piece blocking, not checked
-        if (!isEmpty(grid[iCurr][jCurr])) break;
+        if (!isEmpty(game.state[iCurr][jCurr])) break;
 
         iCurr++;
         jCurr--;
@@ -586,9 +777,9 @@ function diagonalChecks(color, i,j) {
     jCurr = j + 1;
     while (iCurr < HEIGHT && jCurr < WIDTH) {
         // Found a bishop or queen
-        if (grid[iCurr][jCurr].classList.contains(attackingPieces[0]) || grid[iCurr][jCurr].classList.contains(attackingPieces[1])) return true;
+        if (game.state[iCurr][jCurr] === attackingPieces[0] || game.state[iCurr][jCurr] === attackingPieces[1]) return true;
         // Found another piece blocking, not checked
-        if (!isEmpty(grid[iCurr][jCurr])) break;
+        if (!isEmpty(game.state[iCurr][jCurr])) break;
 
         iCurr++;
         jCurr++;
@@ -606,9 +797,9 @@ function verticalAndHorizontalChecks(color, i,j) {
     let jCurr = j;
     while (iCurr >= 0) {
         // Found a rook or queen
-        if (grid[iCurr][jCurr].classList.contains(attackingPieces[0]) || grid[iCurr][jCurr].classList.contains(attackingPieces[1])) return true;
+        if (game.state[iCurr][jCurr] === attackingPieces[0] || game.state[iCurr][jCurr] === attackingPieces[1]) return true;
         // Found another piece blocking, not checked
-        if (!isEmpty(grid[iCurr][jCurr])) break;
+        if (!isEmpty(game.state[iCurr][jCurr])) break;
 
         iCurr--;
 
@@ -619,9 +810,9 @@ function verticalAndHorizontalChecks(color, i,j) {
     jCurr = j;
     while (iCurr < HEIGHT) {
         // Found a rook or queen
-        if (grid[iCurr][jCurr].classList.contains(attackingPieces[0]) || grid[iCurr][jCurr].classList.contains(attackingPieces[1])) return true;
+        if (game.state[iCurr][jCurr] === attackingPieces[0] || game.state[iCurr][jCurr] === attackingPieces[1]) return true;
         // Found another piece blocking, not checked
-        if (!isEmpty(grid[iCurr][jCurr])) break;
+        if (!isEmpty(game.state[iCurr][jCurr])) break;
 
         iCurr++;
     }
@@ -631,9 +822,9 @@ function verticalAndHorizontalChecks(color, i,j) {
     jCurr = j - 1;
     while (jCurr >= 0) {
        // Found a rook or queen
-       if (grid[iCurr][jCurr].classList.contains(attackingPieces[0]) || grid[iCurr][jCurr].classList.contains(attackingPieces[1])) return true;
-       // Found another piece blocking, not checked
-       if (!isEmpty(grid[iCurr][jCurr])) break;
+       if (game.state[iCurr][jCurr] === attackingPieces[0] || game.state[iCurr][jCurr] === attackingPieces[1]) return true;
+        // Found another piece blocking, not checked
+        if (!isEmpty(game.state[iCurr][jCurr])) break;
 
         jCurr--;
     }
@@ -643,9 +834,9 @@ function verticalAndHorizontalChecks(color, i,j) {
     jCurr = j + 1;
     while (jCurr < WIDTH) {
         // Found a rook or queen
-        if (grid[iCurr][jCurr].classList.contains(attackingPieces[0]) || grid[iCurr][jCurr].classList.contains(attackingPieces[1])) return true;
+        if (game.state[iCurr][jCurr] === attackingPieces[0] || game.state[iCurr][jCurr] === attackingPieces[1]) return true;
         // Found another piece blocking, not checked
-        if (!isEmpty(grid[iCurr][jCurr])) break;
+        if (!isEmpty(game.state[iCurr][jCurr])) break;
 
         jCurr++;
     }
@@ -705,6 +896,7 @@ function reset() {
 // Moves a piece
 function move(pieceToMove, destinationSquare, i, j) {
 
+    // Update physical board
     let pieceClass = pieceToMove.location.classList[1];
     pieceToMove.location.classList.remove(pieceClass);
     pieceToMove.location.classList.remove("ready");
@@ -713,6 +905,10 @@ function move(pieceToMove, destinationSquare, i, j) {
     destinationSquare.classList.remove("moves");
     destinationSquare.classList.remove("empty");
     destinationSquare.classList.add(pieceClass);
+
+    // Update game state
+    game.state[i][j] = pieceClass;
+    game.state[pieceToMove.i][pieceToMove.j] = " ";
 
     // Check if castling
     if (destinationSquare.classList.contains("castle")) {
@@ -766,8 +962,8 @@ function castle(destinationSquare) {
     }
 }
 
-function isEmpty(square) {
-    return square.classList.contains("empty");
+function isEmpty(cell) {
+    return (cell === " ");
 }
 
 function isReady(square) {
@@ -797,6 +993,14 @@ function isWhitePiece(square) {
 
 function isBlackPiece(square) {
     return square.classList[1].substring(1) === "b";
+}
+
+function isAttacked(color, i, j) {
+    if (diagonalChecks(color, i,j) || verticalAndHorizontalChecks(color, i, j) || pawnChecks(color, i,j) || knightChecks(color, i,j)) {
+        return true;
+    }
+
+    return false;
 }
 
 init_board();
