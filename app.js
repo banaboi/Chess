@@ -34,22 +34,7 @@ class Game {
         this.turn++;
         this.whiteToMove = (this.turn % 2 === 0);
         this.blackToMove = !this.whiteToMove;
-        if (this.isCheckMate("w")) {
-            console.log("Black won!");
-        }
-        if (this.isCheckMate("b")) {
-            console.log("White won!");
-        }
         console.log(this.state);
-    }
-
-    isCheckMate(color) {
-        if (isInCheck(color)) {
-            
-            return true;
-        }
-
-        return false;   
     }
 
 }
@@ -628,20 +613,6 @@ function squaresAreEmpty(start,end, i) {
     }
 
     return true;
-}
-
-// Checks if a given color king is in check or not
-function isInCheck(color) {
-
-    
-    let i = (color === "w") ? game.whiteKingLocation.i : game.blackKingLocation.i;
-    let j = (color === "w") ? game.whiteKingLocation.j : game.blackKingLocation.j;
-
-    if (pawnChecks(color, i,j)) return true;
-    if (knightChecks(color, i,j)) return true;
-    if (diagonalChecks(color, i,j)) return true;
-    if (verticalAndHorizontalChecks(color,i,j)) return true;
-    return false;
 }
 
 function pawnChecks(color, i,j) {
