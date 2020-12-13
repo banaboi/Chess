@@ -183,45 +183,25 @@ function control(square, i, j) {
 function showValidMoves(square, i, j) {
 
     let color = (square.classList[1].substring(1) === "w") ? "w" : "b";
-    
+
     // WHITE PAWN
-    if (square.classList.contains("pw")) {
-        whitePawnMoves(color, i,j);
-    }
-
+    if (square.classList.contains("pw")) whitePawnMoves(color, i, j);
     // BLACK PAWN
-    if (square.classList.contains("pb")) {
-        blackPawnMoves(color, i,j);
-       
-    }
-
+    if (square.classList.contains("pb")) blackPawnMoves(color, i,j);
     // KNIGHT
-    if (square.classList[1].substring(0,1) === "N") {
-        knightMoves(color, i,j);
-    }
-
+    if (square.classList[1].substring(0,1) === "N") knightMoves(color, i,j);
     // BISHOP
-    if (square.classList[1].substring(0,1) === "b") {
-        bishopMoves(color,i,j);
-    }
-
+    if (square.classList[1].substring(0,1) === "b") bishopMoves(color,i,j);
     // ROOK
-    if (square.classList[1].substring(0,1) === "r") {
-        rookMoves(color, i,j);
-    }
+    if (square.classList[1].substring(0,1) === "r") rookMoves(color, i,j);
+    // KING
+    if (square.classList[1].substring(0,1) === "k") kingMoves(color, i,j);
 
     // QUEEN
     if (square.classList[1].substring(0,1) === "q") {
         bishopMoves(color,i,j);
         rookMoves(color, i,j);
     }
-
-    // KING
-    if (square.classList[1].substring(0,1) === "k") {
-        kingMoves(color, i,j);
-    }
-
-    
 }
 
 function knightMoves(color, i, j) {
