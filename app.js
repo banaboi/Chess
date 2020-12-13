@@ -1,3 +1,20 @@
+// Classes
+class Game {
+    constructor() {
+        this.turn = 0;
+        this.whiteToMove = (this.turn % 2 === 0);
+        this.blackToMove = !this.whiteToMove;
+        this.whiteKingLocation = null;
+        this.blackKingLocation = null;
+    }
+
+    incrementGame() {
+        this.turn++;
+        this.whiteToMove = (this.turn % 2 === 0);
+        this.blackToMove = !this.whiteToMove;
+    }
+
+}
 
 // Constants
 const board = document.querySelector('.board');
@@ -7,6 +24,7 @@ const grid = [];
 const columns = ['A','B','C','D','E','F','G','H'];
 const rows = [8,7,6,5,4,3,2,1];
 
+let game = new Game();
 
 // State Variables
 let pieceToMove = {
@@ -16,10 +34,6 @@ let pieceToMove = {
         this.location = null;
     }
 }
-
-let turn = 0;
-let whiteToMove = (turn % 2 === 0);
-let blackToMove = !whiteToMove;
 
 // Castling state variables
 let whiteKingMoved = false;
@@ -54,6 +68,9 @@ function init_board() {
             
         }
     }
+
+    game.whiteKingLocation = document.getElementById("E1");
+    game.blackKingLocation = document.getElementById("E8");
 }
 function init_pieces(square) {
     switch (square.getAttribute('id')) {
@@ -123,6 +140,12 @@ function init_pieces(square) {
 
 function control(square, i, j) {
     
+    // Check whos turn it is
+    if  ((game.whiteToMove && isBlackPiece(square) && !isMoves(square)) ||
+        (game.blackToMove && isWhitePiece(square) && !isMoves(square))) {
+        return;
+    }
+
     // classes: ready, moves
     if (!isEmpty(square) && !isReady(square) && !isMoves(square)) {
         reset();
@@ -413,6 +436,7 @@ function squaresAreEmpty(start,end, i) {
     return true;
 }
 
+
 // Checks castling rights
 function checkCastlingRights(color) {
     // Check left
@@ -434,7 +458,7 @@ function checkCastlingRights(color) {
     }
 }
 
-// Resets which squares are highlight when selecting a piece to move
+// Resets which squares are highlighted when selecting a piece to move
 function reset() {
     for (let i = 0; i < HEIGHT; i++) {
         for (let j = 0; j < WIDTH; j++) {
@@ -462,7 +486,17 @@ function move(pieceToMove, destinationSquare) {
         castle(destinationSquare);
     }
 
+    // Update king location
+    if (destinationSquare.classList[1] === "kw") {
+        game.whiteKingLocation = destinationSquare;   
+    } else if (destinationSquare.classList[1] === "kb") {
+        game.blackKingLocation = destinationSquare;
+    }
+
     reset();
+    // Move made, next turn
+    game.incrementGame();
+
 }
 
 // Moves the appropriate rook when castling
@@ -521,7 +555,12 @@ function isSamePiece(color, square) {
     return square.classList[1].substring(1) === color;
 }
 
+function isWhitePiece(square) {
+    return square.classList[1].substring(1) === "w";
+}
 
+function isBlackPiece(square) {
+    return square.classList[1].substring(1) === "b";
+}
 
-init_board()
-
+init_board();
