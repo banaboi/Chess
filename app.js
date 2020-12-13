@@ -196,7 +196,6 @@ function showValidMoves(square, i, j) {
     if (square.classList[1].substring(0,1) === "r") rookMoves(color, i,j);
     // KING
     if (square.classList[1].substring(0,1) === "k") kingMoves(color, i,j);
-
     // QUEEN
     if (square.classList[1].substring(0,1) === "q") {
         bishopMoves(color,i,j);
