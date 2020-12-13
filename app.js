@@ -2,6 +2,7 @@
 class Game {
     constructor() {
         this.turn = 0;
+        this.finished = true;
         this.whiteToMove = (this.turn % 2 === 0);
         this.blackToMove = !this.whiteToMove;
 
@@ -24,8 +25,22 @@ class Game {
         this.turn++;
         this.whiteToMove = (this.turn % 2 === 0);
         this.blackToMove = !this.whiteToMove;
+        if (this.isCheckMate("w")) {
+            console.log("Black won!");
+        }
+        if (this.isCheckMate("b")) {
+            console.log("White won!");
+        }
         console.log("White king is checked: " + isInCheck("w"));
         console.log("Black king is checked: " + isInCheck("b"));
+    }
+
+    isCheckMate(color) {
+        if (isInCheck(color)) {
+            return true;
+        }
+
+        return false;
     }
 
 }
@@ -163,7 +178,7 @@ function control(square, i, j) {
         return;
     }
 
-    // classes: ready, moves
+    // Square selected can be made ready, hence ready
     if (!isEmpty(square) && !isReady(square) && !isMoves(square)) {
         reset();
         square.classList.add("ready");
@@ -173,13 +188,14 @@ function control(square, i, j) {
         showValidMoves(square,i,j);
     } 
 
-
+    // Square selected is a move, hence move piece
     if (isMoves(square) || square.classList.contains("castle")) {
         updateCastlingStateVariables();
         move(pieceToMove, square, i, j);
     }
 }
 
+// Shows the valid moves for a given piece
 function showValidMoves(square, i, j) {
 
     let color = (square.classList[1].substring(1) === "w") ? "w" : "b";
@@ -284,6 +300,7 @@ function blackPawnMoves(color, i, j) {
 }
 
 function whitePawnMoves(color, i,j) {
+
     // Pawn can move two spots if not moved
     if (i === 6 && i - 2 >= 0 && isEmpty(grid[i-2][j]) && isEmpty(grid[i-1][j])) {
         grid[i-2][j].classList.add("moves");
@@ -580,7 +597,6 @@ function verticalAndHorizontalChecks(color, i,j) {
     attackingPieces[0] = (color === "w") ? "rb" : "rw";
     attackingPieces[1] = (color === "w") ? "qb" : "qw";
 
-
     // Up 
     let iCurr = i - 1;
     let jCurr = j;
@@ -633,19 +649,22 @@ function verticalAndHorizontalChecks(color, i,j) {
 
 // Checks castling rights
 function checkCastlingRights(color) {
-    // Check left
+    // Check left white
     if (color === "w" && !whiteKingMoved && !whiteLeftRookMoved && squaresAreEmpty(1, 4, 7)) {
         // Can castle, highlight A3
         document.getElementById("C1").classList.add("castle");
     }
+    // Check right white
     if (color === "w" && !whiteKingMoved && !whiteRightRookMoved && squaresAreEmpty(5, 7, 7)) {
         // Can castle, highlight, A7
         document.getElementById("G1").classList.add("castle");
     }
+    // Check left black
     if (color === "b" && !blackKingMoved && !blackLeftRookMoved && squaresAreEmpty(1, 4, 0)) {
         // Can castle, highlight, A7
         document.getElementById("C8").classList.add("castle");
     }
+    // Check right black
     if (color === "b" && !blackKingMoved && !blackRightRookMoved && squaresAreEmpty(5, 7, 0)) {
         // Can castle, highlight, A7
         document.getElementById("G8").classList.add("castle");
