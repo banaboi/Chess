@@ -2,7 +2,7 @@
 class Game {
     constructor() {
         this.turn = 0;
-        this.finished = true;
+        this.finished = false;
         this.whiteToMove = (this.turn % 2 === 0);
         this.blackToMove = !this.whiteToMove;
 
@@ -37,10 +37,11 @@ class Game {
 
     isCheckMate(color) {
         if (isInCheck(color)) {
+            
             return true;
         }
 
-        return false;
+        return false;   
     }
 
 }
@@ -171,7 +172,10 @@ function init_pieces(square) {
 }
 
 function control(square, i, j) {
-    
+
+    // If the game is finished, return
+    if (game.finished) return;
+
     // Check whos turn it is
     if  ((game.whiteToMove && isBlackPiece(square) && !isMoves(square)) ||
         (game.blackToMove && isWhitePiece(square) && !isMoves(square))) {
