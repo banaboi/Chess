@@ -4,14 +4,28 @@ class Game {
         this.turn = 0;
         this.whiteToMove = (this.turn % 2 === 0);
         this.blackToMove = !this.whiteToMove;
-        this.whiteKingLocation = null;
-        this.blackKingLocation = null;
+
+        this.whiteKingLocation = {
+            constructor() {
+                this.i = 0;
+                this.j = 0;
+            }
+        };
+
+        this.blackKingLocation =  {
+            constructor() {
+                this.i = 0;
+                this.j = 0;
+            }
+        };
     }
 
     incrementGame() {
         this.turn++;
         this.whiteToMove = (this.turn % 2 === 0);
         this.blackToMove = !this.whiteToMove;
+        console.log("White king is checked: " + isInCheck("w"));
+        console.log("Black king is checked: " + isInCheck("b"));
     }
 
 }
@@ -69,9 +83,12 @@ function init_board() {
         }
     }
 
-    game.whiteKingLocation = document.getElementById("E1");
-    game.blackKingLocation = document.getElementById("E8");
+    game.whiteKingLocation.i = 7;
+    game.whiteKingLocation.j = 4;
+    game.blackKingLocation.i = 0;
+    game.blackKingLocation.j = 4;
 }
+
 function init_pieces(square) {
     switch (square.getAttribute('id')) {
         case 'A1':
@@ -158,22 +175,8 @@ function control(square, i, j) {
 
 
     if (isMoves(square) || square.classList.contains("castle")) {
-        if (pieceToMove.location.classList[1] === "kw" && whiteKingMoved === false) {
-            whiteKingMoved = true;
-        } else if (pieceToMove.location.classList[1] === "kb" && blackKingMoved === false) {
-            blackKingMoved = true;
-        } else if (pieceToMove.location.id === "A1" && whiteLeftRookMoved === false) {
-            whiteLeftRookMoved = true;
-        } else if (pieceToMove.location.id === "H1" && whiteRightRookMoved === false) {
-            whiteRightRookMoved = true;
-        } else if (pieceToMove.location.id === "A8" && blackLeftRookMoved === false) {
-            blackLeftRookMoved = true;
-        } else if (pieceToMove.location.id === "H8" && blackRightRookMoved === false) {
-            blackRightRookMoved = true;
-        } 
-
-
-        move(pieceToMove, square);
+        updateCastlingStateVariables();
+        move(pieceToMove, square, i, j);
     }
 }
 
@@ -436,6 +439,218 @@ function squaresAreEmpty(start,end, i) {
     return true;
 }
 
+// Checks if a given color king is in check or not
+function isInCheck(color) {
+
+    
+    let i = (color === "w") ? game.whiteKingLocation.i : game.blackKingLocation.i;
+    let j = (color === "w") ? game.whiteKingLocation.j : game.blackKingLocation.j;
+
+    if (pawnChecks(color, i,j)) return true;
+    if (knightChecks(color, i,j)) return true;
+    if (diagonalChecks(color, i,j)) return true;
+    if (verticalAndHorizontalChecks(color,i,j)) return true;
+    return false;
+}
+
+function pawnChecks(color, i,j) {
+
+    let direction = (color === "w") ? (i - 1 >= 0) : (i + 1 < HEIGHT);
+    let index = (color === "w") ? i - 1 : i + 1;
+    let attackingPiece = (color === "w") ? "pb" : "pw";
+
+    // Check left
+    if (direction && j - 1 >= 0 && grid[index][j-1].classList.contains(attackingPiece)) {
+        return true;
+    }
+    // check right
+    if (direction && j + 1 < WIDTH && grid[index][j+1].classList.contains(attackingPiece)) {
+        return true;
+    }
+
+
+    return false;
+}
+
+function knightChecks(color, i,j) {
+
+    let attackingPiece = (color === "w") ? "Nb" : "Nw";
+
+    // Check up and left
+    if (i - 2 >= 0 && j - 1 >= 0) {
+        if (grid[i-2][j-1].classList.contains(attackingPiece)) {
+            return true;
+        } 
+    }
+
+    // Check up and right
+    if (i - 2 >= 0 && j + 1 < WIDTH) {
+        if (grid[i-2][j+1].classList.contains(attackingPiece)) {
+            return true;
+        }
+    }
+
+    // Check right and up
+    if (i - 1 >= 0 && j + 2 < WIDTH) {
+        if (grid[i-1][j+2].classList.contains(attackingPiece)) {
+            return true;
+        }
+    }
+
+    // Check left and up 
+    if (i - 1 >= 0 && j - 2 >= 0) {
+        if (grid[i-1][j-2].classList.contains(attackingPiece)) {
+            return true;
+        }
+    }
+
+    // Check down and left
+    if (i + 2 < HEIGHT && j - 1 >= 0) {
+        if (grid[i+2][j-1].classList.contains(attackingPiece)) {
+            return true;
+        }
+    }
+
+    // Check down and right
+    if (i + 2 < HEIGHT && j + 1 < WIDTH) {
+        if (grid[i+2][j-1].classList.contains(attackingPiece)) {
+            return true;
+        }
+    }
+
+    // Check left and down
+    if (i + 1 < HEIGHT && j + 2 < WIDTH) {
+        if (grid[i+1][j+2].classList.contains(attackingPiece)) {
+            return true;
+        }
+    }
+
+    // Check right and down 
+    if (i + 1 < HEIGHT && j - 2 >= 0) {
+        if (grid[i+1][j-2].classList.contains(attackingPiece)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+function diagonalChecks(color, i,j) {
+
+    let attackingPieces = [];
+    attackingPieces[0] = (color === "w") ? "bb" : "bw";
+    attackingPieces[1] = (color === "w") ? "qb" : "qw";
+
+    // Upper Left diagonal
+    let iCurr = i - 1;
+    let jCurr = j - 1;
+    while (iCurr >= 0 && jCurr >= 0) {
+        // Found a bishop or queen
+        if (grid[iCurr][jCurr].classList.contains(attackingPieces[0]) || grid[iCurr][jCurr].classList.contains(attackingPieces[1])) return true;
+        // Found another piece blocking, not checked
+        if (!isEmpty(grid[iCurr][jCurr])) break;
+
+        iCurr--;
+        jCurr--;
+
+    }
+
+    // Upper right diagonal
+    iCurr = i - 1;
+    jCurr = j + 1;
+    while (iCurr >= 0 && jCurr < WIDTH) {
+        // Found a bishop or queen
+        if (grid[iCurr][jCurr].classList.contains(attackingPieces[0]) || grid[iCurr][jCurr].classList.contains(attackingPieces[1])) return true;
+        // Found another piece blocking, not checked
+        if (!isEmpty(grid[iCurr][jCurr])) break;
+
+        iCurr--;
+        jCurr++;
+    }
+
+    // Lower left diagonal
+    iCurr = i + 1;
+    jCurr = j - 1;
+    while (iCurr < HEIGHT && jCurr >= 0) {
+        // Found a bishop or queen
+        if (grid[iCurr][jCurr].classList.contains(attackingPieces[0]) || grid[iCurr][jCurr].classList.contains(attackingPieces[1])) return true;
+        // Found another piece blocking, not checked
+        if (!isEmpty(grid[iCurr][jCurr])) break;
+
+        iCurr++;
+        jCurr--;
+    }
+
+    // Lower right diagonal
+    iCurr = i + 1;
+    jCurr = j + 1;
+    while (iCurr < HEIGHT && jCurr < WIDTH) {
+        // Found a bishop or queen
+        if (grid[iCurr][jCurr].classList.contains(attackingPieces[0]) || grid[iCurr][jCurr].classList.contains(attackingPieces[1])) return true;
+        // Found another piece blocking, not checked
+        if (!isEmpty(grid[iCurr][jCurr])) break;
+
+        iCurr++;
+        jCurr++;
+    }
+}
+
+function verticalAndHorizontalChecks(color, i,j) {
+
+    let attackingPieces = [];
+    attackingPieces[0] = (color === "w") ? "rb" : "rw";
+    attackingPieces[1] = (color === "w") ? "qb" : "qw";
+
+
+    // Up 
+    let iCurr = i - 1;
+    let jCurr = j;
+    while (iCurr >= 0) {
+        // Found a rook or queen
+        if (grid[iCurr][jCurr].classList.contains(attackingPieces[0]) || grid[iCurr][jCurr].classList.contains(attackingPieces[1])) return true;
+        // Found another piece blocking, not checked
+        if (!isEmpty(grid[iCurr][jCurr])) break;
+
+        iCurr--;
+
+    }
+    
+    // Down
+    iCurr = i + 1;
+    jCurr = j;
+    while (iCurr < HEIGHT) {
+        // Found a rook or queen
+        if (grid[iCurr][jCurr].classList.contains(attackingPieces[0]) || grid[iCurr][jCurr].classList.contains(attackingPieces[1])) return true;
+        // Found another piece blocking, not checked
+        if (!isEmpty(grid[iCurr][jCurr])) break;
+
+        iCurr++;
+    }
+
+    // Left
+    iCurr = i;
+    jCurr = j - 1;
+    while (jCurr >= 0) {
+       // Found a rook or queen
+       if (grid[iCurr][jCurr].classList.contains(attackingPieces[0]) || grid[iCurr][jCurr].classList.contains(attackingPieces[1])) return true;
+       // Found another piece blocking, not checked
+       if (!isEmpty(grid[iCurr][jCurr])) break;
+
+        jCurr--;
+    }
+
+    // Right
+    iCurr = i;
+    jCurr = j + 1;
+    while (jCurr < WIDTH) {
+        // Found a rook or queen
+        if (grid[iCurr][jCurr].classList.contains(attackingPieces[0]) || grid[iCurr][jCurr].classList.contains(attackingPieces[1])) return true;
+        // Found another piece blocking, not checked
+        if (!isEmpty(grid[iCurr][jCurr])) break;
+
+        jCurr++;
+    }
+}
 
 // Checks castling rights
 function checkCastlingRights(color) {
@@ -458,6 +673,22 @@ function checkCastlingRights(color) {
     }
 }
 
+function updateCastlingStateVariables() {
+    if (pieceToMove.location.classList[1] === "kw" && whiteKingMoved === false) {
+        whiteKingMoved = true;
+    } else if (pieceToMove.location.classList[1] === "kb" && blackKingMoved === false) {
+        blackKingMoved = true;
+    } else if (pieceToMove.location.id === "A1" && whiteLeftRookMoved === false) {
+        whiteLeftRookMoved = true;
+    } else if (pieceToMove.location.id === "H1" && whiteRightRookMoved === false) {
+        whiteRightRookMoved = true;
+    } else if (pieceToMove.location.id === "A8" && blackLeftRookMoved === false) {
+        blackLeftRookMoved = true;
+    } else if (pieceToMove.location.id === "H8" && blackRightRookMoved === false) {
+        blackRightRookMoved = true;
+    } 
+}
+
 // Resets which squares are highlighted when selecting a piece to move
 function reset() {
     for (let i = 0; i < HEIGHT; i++) {
@@ -470,7 +701,7 @@ function reset() {
 }
 
 // Moves a piece
-function move(pieceToMove, destinationSquare) {
+function move(pieceToMove, destinationSquare, i, j) {
 
     let pieceClass = pieceToMove.location.classList[1];
     pieceToMove.location.classList.remove(pieceClass);
@@ -488,12 +719,15 @@ function move(pieceToMove, destinationSquare) {
 
     // Update king location
     if (destinationSquare.classList[1] === "kw") {
-        game.whiteKingLocation = destinationSquare;   
+        game.whiteKingLocation.i = i;   
+        game.whiteKingLocation.j = j;
     } else if (destinationSquare.classList[1] === "kb") {
-        game.blackKingLocation = destinationSquare;
+        game.blackKingLocation.i = i;
+        game.blackKingLocation.j = j;
     }
 
     reset();
+
     // Move made, next turn
     game.incrementGame();
 
