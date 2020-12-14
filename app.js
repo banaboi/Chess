@@ -160,6 +160,21 @@ function showValidMoves(square, i, j) {
     }
 }
 
+// Checks if a psuedo valid move is legal: does not put king in check
+function moveValidator(color, iPrev, jPrev, iNew, jNew, iKing, jKing, pieceBeingMoved) {
+    // Simulate movement
+    let pieceTaken = game.state[iNew][jNew];
+    game.state[iNew][jNew] = pieceBeingMoved;
+    game.state[iPrev][jPrev] = " ";
+
+    // If the white king is attacked after move, illegal
+    if (!isAttacked(color, iKing, jKing)) {
+        grid[iNew][jNew].classList.add("moves");
+    }
+    game.state[iNew][jNew] = pieceTaken;
+    game.state[iPrev][jPrev] = pieceBeingMoved;
+}
+
 function knightMoves(color, i, j) {
 
     // Logic is determined by which color knight is being moved
@@ -170,132 +185,56 @@ function knightMoves(color, i, j) {
     // Check up and left
     if (i - 2 >= 0 && j - 1 >= 0) {
         if (isEmpty(game.state[i-2][j-1]) || isOpposingPiece(color, grid[i-2][j-1])) {
-            
-            // Simulate movement
-            let pieceTaken = game.state[i-2][j-1];
-            game.state[i-2][j-1] = knight;
-            game.state[i][j] = " ";
-            // If the white king is attacked after move, illegal
-            if (!isAttacked(color, iKing, jKing)) {
-                grid[i-2][j-1].classList.add("moves");
-            }
-            game.state[i-2][j-1] = pieceTaken;
-            game.state[i][j] = knight;
-            
+            moveValidator(color, i, j, i-2, j-1, iKing, jKing, knight);
         } 
     }
     
     // Check up and right
     if (i - 2 >= 0 && j + 1 < WIDTH) {
         if (isEmpty(game.state[i-2][j+1]) || isOpposingPiece(color,grid[i-2][j+1])) {
-
-            // Simulate movement
-            let pieceTaken = game.state[i-2][j+1];
-            game.state[i-2][j+1] = knight;
-            game.state[i][j] = " ";
-            // If the white king is attacked after move, illegal
-            if (!isAttacked(color, iKing, jKing)) {
-                grid[i-2][j+1].classList.add("moves");
-            }
-            game.state[i-2][j+1] = pieceTaken;
-            game.state[i][j] = knight;
+            moveValidator(color, i, j, i-2, j+1, iKing, jKing, knight)
         }
     }
     
     // Check right and up
     if (i - 1 >= 0 && j + 2 < WIDTH) {
         if (isEmpty(game.state[i-1][j+2]) || isOpposingPiece(color,grid[i-1][j+2])) {
-            // Simulate movement
-            let pieceTaken = game.state[i-1][j+2];
-            game.state[i-1][j+2] = knight;
-            game.state[i][j] = " ";
-            // If the white king is attacked after move, illegal
-            if (!isAttacked(color, iKing, jKing)) {
-                grid[i-1][j+2].classList.add("moves");
-            }
-            game.state[i-1][j+2] = pieceTaken;
-            game.state[i][j] = knight;
+            moveValidator(color, i, j, i-1, j+2, iKing, jKing, knight)
         }
     }
     
     // Check left and up 
     if (i - 1 >= 0 && j - 2 >= 0) {
         if (isEmpty(game.state[i-1][j-2]) || isOpposingPiece(color,grid[i-1][j-2])) {
-            // Simulate movement
-            let pieceTaken = game.state[i-1][j-2];
-            game.state[i-1][j-2] = knight;
-            game.state[i][j] = " ";
-            // If the white king is attacked after move, illegal
-            if (!isAttacked(color, iKing, jKing)) {
-                grid[i-1][j-2].classList.add("moves");
-            }
-            game.state[i-1][j-2] = pieceTaken;
-            game.state[i][j] = knight;
+            moveValidator(color, i, j, i-1, j-2, iKing, jKing, knight)
         }
     }
     
     // Check down and left
     if (i + 2 < HEIGHT && j - 1 >= 0) {
         if (isEmpty(game.state[i+2][j-1]) || isOpposingPiece(color,grid[i+2][j-1])) {
-            // Simulate movement
-            let pieceTaken = game.state[i+2][j-1];
-            game.state[i+2][j-1] = knight;
-            game.state[i][j] = " ";
-            // If the white king is attacked after move, illegal
-            if (!isAttacked(color, iKing, jKing)) {
-                grid[i+2][j-1].classList.add("moves");
-            }
-            game.state[i+2][j-1] = pieceTaken;
-            game.state[i][j] = knight;
+            moveValidator(color, i, j, i+2, j-1, iKing, jKing, knight)
         }
     }
     
     // Check down and right
     if (i + 2 < HEIGHT && j + 1 < WIDTH) {
         if  (isEmpty(game.state[i+2][j+1]) || isOpposingPiece(color,grid[i+2][j+1])) {
-            // Simulate movement
-            let pieceTaken = game.state[i+2][j+1];
-            game.state[i+2][j+1] = knight;
-            game.state[i][j] = " ";
-            // If the white king is attacked after move, illegal
-            if (!isAttacked(color, iKing, jKing)) {
-                grid[i+2][j+1].classList.add("moves");
-            }
-            game.state[i+2][j+1] = pieceTaken;
-            game.state[i][j] = knight;
+            moveValidator(color, i, j, i+2, j+1, iKing, jKing, knight)
         }
     }
     
     // Check left and down
     if (i + 1 < HEIGHT && j + 2 < WIDTH) {
         if (isEmpty(game.state[i+1][j+2]) || isOpposingPiece(color,grid[i+1][j+2])) {
-            // Simulate movement
-            let pieceTaken = game.state[i+1][j+2];
-            game.state[i+1][j+2] = knight;
-            game.state[i][j] = " ";
-            // If the white king is attacked after move, illegal
-            if (!isAttacked(color, iKing, jKing)) {
-                grid[i+1][j+2].classList.add("moves");
-            }
-            game.state[i+1][j+2] = pieceTaken;
-            game.state[i][j] = knight;
+            moveValidator(color, i, j, i+1, j+2, iKing, jKing, knight)
         }
     }
     
     // Check right and down 
     if (i + 1 < HEIGHT && j - 2 >= 0) {
         if (isEmpty(game.state[i+1][j-2]) || isOpposingPiece(color,grid[i+1][j-2])) {
-            // Simulate movement
-            let pieceTaken = game.state[i+1][j-2];
-            game.state[i+1][j-2] = knight;
-            game.state[i][j] = " ";
-
-            // If the white king is attacked after move, illegal
-            if (!isAttacked(color, iKing, jKing)) {
-                grid[i+1][j-2].classList.add("moves");
-            }
-            game.state[i+1][j-2] = pieceTaken;
-            game.state[i][j] = knight;
+            moveValidator(color, i, j, i+1, j-2, iKing, jKing, knight)
         }
     }
 }
