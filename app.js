@@ -31,7 +31,7 @@ class Game {
                         ["pw", "pw", "pw", "pw", "pw", "pw", "pw", "pw" ],
                         ["rw", "Nw", "bw", "qw", "kw", "bw", "Nw", "rw" ] ];
 
-        this.set = new Set();
+        this.legalMoves = new Set();
     }
 
     // Increments the state of the game
@@ -47,22 +47,25 @@ class Game {
         // Check if black has checkmate
         if (this.whiteCheck) {
             // Place all legal moves in set, if set is empty, checkmate
-            this.set.clear();
+            this.legalMoves.clear();
             if (!this.isCheckMate("w").size) {
                 console.log("Black is victorious");
                 this.finished = true;
             }
+
         }
 
         // Check if white has check mate
         if (this.blackCheck) {
             // Place all legal moves in set, if set is empty, checkmate
-            this.set.clear();
+            this.legalMoves.clear();
             if (!this.isCheckMate("b").size) {
                 console.log("White is victorious");
                 this.finished = true;
             }
+            
         }
+        
     }
 
     // If a king is in check, return a set of all valid pieces which may be moved 
@@ -72,15 +75,14 @@ class Game {
                 // If the piece is the same color, generate all possible moves
                 if (!isEmpty(this.state[i][j]) && this.state[i][j].substring(1) === color) {
                     showValidMoves(grid[i][j], i, j);
-                    if (boardHasMoves()) this.set.add(grid[i][j].id);
+                    if (boardHasMoves()) this.legalMoves.add(grid[i][j].id);
                     reset();
                 }
             }
         }
 
-        return this.set;
+        return this.legalMoves;
     }
-
 }
 
 // Constants
@@ -166,9 +168,9 @@ function control(square, i, j) {
     }
     // If the given players king is in check, and the piece selected cannot move to exit check or the square selected isnt an already selected move square
     // invalid move
-    if (game.whiteCheck && game.whiteToMove && (!game.set.has(square.id) && !isMoves(square))) {
+    if (game.whiteCheck && game.whiteToMove && (!game.legalMoves.has(square.id) && !isMoves(square))) {
         return;
-    } else if (game.blackCheck && game.blackToMove && (!game.set.has(square.id) && !isMoves(square))) {
+    } else if (game.blackCheck && game.blackToMove && (!game.legalMoves.has(square.id) && !isMoves(square))) {
         return;
     }
 
