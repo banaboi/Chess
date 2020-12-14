@@ -7,3 +7,4 @@
 ## Features yet to be Implemented
 
 * Queening
+* Stalemate
