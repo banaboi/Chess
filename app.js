@@ -82,7 +82,7 @@ function init_board() {
             } else {
                 square.setAttribute('class', 'light-square');
             }
-            init_pieces(square);
+            
             square.addEventListener('click', function (e) {
                 control (square,i,j);
             });
@@ -92,76 +92,20 @@ function init_board() {
         }
     }
 
+    init_pieces();
     game.whiteKingLocation.i = 7;
     game.whiteKingLocation.j = 4;
     game.blackKingLocation.i = 0;
     game.blackKingLocation.j = 4;
 }
 
-function init_pieces(square) {
-    switch (square.getAttribute('id')) {
-        case 'A1':
-            square.classList.add('rw');
-            return;
-        case 'B1':
-            square.classList.add('Nw');
-            return;
-        case 'C1':
-            square.classList.add('bw');
-            return;
-        case 'D1':
-            square.classList.add('qw');
-            return;
-        case 'E1':
-            square.classList.add('kw');
-            return;
-        case 'F1':
-            square.classList.add('bw');
-            return;
-        case 'G1':
-            square.classList.add('Nw');
-            return;
-        case 'H1':
-            square.classList.add('rw');
-            return;
-        case 'A8':
-            square.classList.add('rb');
-            return;
-        case 'B8':
-            square.classList.add('Nb');
-            return;
-        case 'C8':
-            square.classList.add('bb');
-            return;
-        case 'D8':
-            square.classList.add('qb');
-            return;
-        case 'E8':
-            square.classList.add('kb');
-            return;
-        case 'F8':
-            square.classList.add('bb');
-            return;
-        case 'G8':
-            square.classList.add('Nb');
-            return;
-        case 'H8':
-            square.classList.add('rb');
-            return;
-
+function init_pieces() {
+    for (let i = 0; i < HEIGHT; i++) {
+        for (let j = 0; j < WIDTH; j++) {
+            let type = (game.state[i][j] === " " ? "empty" : game.state[i][j]);
+            grid[i][j].classList.add(type);
+        }
     }
-
-    switch(square.getAttribute('id').substring(1)) {
-        case '2':
-            square.classList.add('pw');
-            return;
-        case '7':
-            square.classList.add('pb');
-            return;
-    }
-
-    square.classList.add("empty")
-
 }
 
 function control(square, i, j) {
@@ -419,6 +363,7 @@ function blackPawnMoves(color, i, j) {
            grid[i+1][j+1].classList.add("moves");
        }
 
+       // Revert
        game.state[i+1][j+1] = pieceTaken;
        game.state[i][j] = "pb"
     }
