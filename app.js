@@ -5,6 +5,8 @@ class Game {
         this.finished = false;
         this.whiteToMove = (this.turn % 2 === 0);
         this.blackToMove = !this.whiteToMove;
+        this.whiteCheck = false;
+        this.blackCheck = false;
 
         this.whiteKingLocation = {
             constructor() {
@@ -28,13 +30,51 @@ class Game {
                         [" ", " ", " ", " ", " ", " ", " ", " "],
                         ["pw", "pw", "pw", "pw", "pw", "pw", "pw", "pw" ],
                         ["rw", "Nw", "bw", "qw", "kw", "bw", "Nw", "rw" ] ];
+
+        this.set = new Set();
     }
 
+    // Increments the state of the game
     incrementGame() {
         this.turn++;
         this.whiteToMove = (this.turn % 2 === 0);
         this.blackToMove = !this.whiteToMove;
-        console.log(this.state);
+
+        // Check if any of the kings are in check
+        this.whiteCheck = isAttacked("w", this.whiteKingLocation.i, this.whiteKingLocation.j);
+        this.blackCheck = isAttacked("b", this.blackKingLocation.i, this.blackKingLocation.j); 
+
+        // Check if black has checkmate
+        if (this.whiteCheck) {
+            if (!this.isCheckMate("w").size) {
+                console.log("Black is victorious");
+                this.finished = true;
+            }
+        }
+
+        // Check if white has check mate
+        if (this.blackCheck) {
+            if (!this.isCheckMate("b").size) {
+                console.log("White is victorious");
+                this.finished = true;
+            }
+        }
+    }
+
+    // If a king is in check, return a set of all valid pieces which may be moved 
+    isCheckMate(color) {
+        for (let i = 0; i < HEIGHT; i++) {
+            for (let j = 0; j < WIDTH; j++) {
+                // If the piece is the same color, generate all possible moves
+                if (!isEmpty(this.state[i][j]) && this.state[i][j].substring(1) === color) {
+                    showValidMoves(grid[i][j], i, j);
+                    if (boardHasMoves()) this.set.add(grid[i][j].id);
+                    reset();
+                }
+            }
+        }
+
+        return this.set;
     }
 
 }
@@ -47,6 +87,7 @@ const grid = [];
 const columns = ['A','B','C','D','E','F','G','H'];
 const rows = [8,7,6,5,4,3,2,1];
 
+// Create an instance of Game
 let game = new Game();
 
 // State Variables
@@ -66,7 +107,7 @@ let whiteRightRookMoved = false;
 let blackLeftRookMoved = false;
 let blackRightRookMoved = false;
 
-
+// Initialise the game board
 function init_board() {
     for (let i = 0; i < HEIGHT; i++) {
         grid[i] = [];
@@ -98,7 +139,7 @@ function init_board() {
     game.blackKingLocation.i = 0;
     game.blackKingLocation.j = 4;
 }
-
+// Initialise the pieces on the game board
 function init_pieces() {
     for (let i = 0; i < HEIGHT; i++) {
         for (let j = 0; j < WIDTH; j++) {
@@ -107,8 +148,9 @@ function init_pieces() {
         }
     }
 }
-
+// Control the play of the game when a square is clicked
 function control(square, i, j) {
+
 
     // If the game is finished, return
     if (game.finished) return;
@@ -116,6 +158,12 @@ function control(square, i, j) {
     // Check whos turn it is
     if  ((game.whiteToMove && isBlackPiece(square) && !isMoves(square)) ||
         (game.blackToMove && isWhitePiece(square) && !isMoves(square))) {
+        return;
+    }
+    // If the given players king is in check, and the piece selected cannot move to exit check, invalid move
+    if (game.whiteCheck && game.whiteToMove && !game.set.has(square.id)) {
+        return;
+    } else if (game.blackCheck && game.blackToMove && !game.set.has(square.id)) {
         return;
     }
 
@@ -134,6 +182,8 @@ function control(square, i, j) {
         updateCastlingStateVariables();
         move(pieceToMove, square, i, j);
     }
+
+    game.set.clear();
 }
 
 // Shows the valid moves for a given piece
@@ -167,7 +217,7 @@ function moveValidator(color, iPrev, jPrev, iNew, jNew, iKing, jKing, pieceBeing
     game.state[iNew][jNew] = pieceBeingMoved;
     game.state[iPrev][jPrev] = " ";
 
-    // If the white king is attacked after move, illegal
+    // If the king is attacked after move, illegal
     if (!isAttacked(color, iKing, jKing)) {
         grid[iNew][jNew].classList.add("moves");
     }
@@ -393,12 +443,16 @@ function rookMoves(color, i,j) {
 
 function kingMoves(color, i,j) {
 
+    // Logic is determined by which color piece is being moved
+    let king = (color === "w") ? "kw" : "kb";
+
     checkCastlingRights(color);
     for (let row = i - 1; row < i + 2; row++) {
         for (let col = j - 1; col < j + 2; col++) {
             if (row >= 0 && row < HEIGHT && col >= 0 && col < WIDTH && !isSamePiece(color, grid[row][col])) {
-                grid[row][col].classList.add("moves");
-                
+                let iKing = row;
+                let jKing = col;
+                moveValidator(color, i, j, row, col, iKing, jKing, king);
             }
         }
     }
@@ -474,7 +528,7 @@ function knightChecks(color, i,j) {
 
     // Check down and right
     if (i + 2 < HEIGHT && j + 1 < WIDTH) {
-        if (game.state[i+2][j-1] === attackingPiece) {
+        if (game.state[i+2][j+1] === attackingPiece) {
             return true;
         }
     }
@@ -501,13 +555,14 @@ function diagonalChecks(color, i,j) {
     let attackingPieces = [];
     attackingPieces[0] = (color === "w") ? "bb" : "bw";
     attackingPieces[1] = (color === "w") ? "qb" : "qw";
+    attackingPieces[2] = (color === "w") ? "kb" : "kw";
 
     // Upper Left diagonal
     let iCurr = i - 1;
     let jCurr = j - 1;
     while (iCurr >= 0 && jCurr >= 0) {
         // Found a bishop or queen
-        if (game.state[iCurr][jCurr] === attackingPieces[0] || game.state[iCurr][jCurr] === attackingPieces[1]) return true;
+        if (game.state[iCurr][jCurr] === attackingPieces[0] || game.state[iCurr][jCurr] === attackingPieces[1] || game.state[iCurr][jCurr] === attackingPieces[2]) return true;
         // Found another piece blocking, not checked
         if (!isEmpty(game.state[iCurr][jCurr])) break;
 
@@ -521,7 +576,7 @@ function diagonalChecks(color, i,j) {
     jCurr = j + 1;
     while (iCurr >= 0 && jCurr < WIDTH) {
         // Found a bishop or queen
-        if (game.state[iCurr][jCurr] === attackingPieces[0] || game.state[iCurr][jCurr] === attackingPieces[1]) return true;
+        if (game.state[iCurr][jCurr] === attackingPieces[0] || game.state[iCurr][jCurr] === attackingPieces[1] || game.state[iCurr][jCurr] === attackingPieces[2]) return true;
         // Found another piece blocking, not checked
         if (!isEmpty(game.state[iCurr][jCurr])) break;
 
@@ -534,7 +589,7 @@ function diagonalChecks(color, i,j) {
     jCurr = j - 1;
     while (iCurr < HEIGHT && jCurr >= 0) {
         // Found a bishop or queen
-        if (game.state[iCurr][jCurr] === attackingPieces[0] || game.state[iCurr][jCurr] === attackingPieces[1]) return true;
+        if (game.state[iCurr][jCurr] === attackingPieces[0] || game.state[iCurr][jCurr] === attackingPieces[1] || game.state[iCurr][jCurr] === attackingPieces[2]) return true;
         // Found another piece blocking, not checked
         if (!isEmpty(game.state[iCurr][jCurr])) break;
 
@@ -547,7 +602,7 @@ function diagonalChecks(color, i,j) {
     jCurr = j + 1;
     while (iCurr < HEIGHT && jCurr < WIDTH) {
         // Found a bishop or queen
-        if (game.state[iCurr][jCurr] === attackingPieces[0] || game.state[iCurr][jCurr] === attackingPieces[1]) return true;
+        if (game.state[iCurr][jCurr] === attackingPieces[0] || game.state[iCurr][jCurr] === attackingPieces[1] || game.state[iCurr][jCurr] === attackingPieces[2]) return true;
         // Found another piece blocking, not checked
         if (!isEmpty(game.state[iCurr][jCurr])) break;
 
@@ -561,13 +616,14 @@ function verticalAndHorizontalChecks(color, i,j) {
     let attackingPieces = [];
     attackingPieces[0] = (color === "w") ? "rb" : "rw";
     attackingPieces[1] = (color === "w") ? "qb" : "qw";
+    attackingPieces[2] = (color === "w") ? "kb" : "kw";
 
     // Up 
     let iCurr = i - 1;
     let jCurr = j;
     while (iCurr >= 0) {
         // Found a rook or queen
-        if (game.state[iCurr][jCurr] === attackingPieces[0] || game.state[iCurr][jCurr] === attackingPieces[1]) return true;
+        if (game.state[iCurr][jCurr] === attackingPieces[0] || game.state[iCurr][jCurr] === attackingPieces[1] || game.state[iCurr][jCurr] === attackingPieces[2]) return true;
         // Found another piece blocking, not checked
         if (!isEmpty(game.state[iCurr][jCurr])) break;
 
@@ -580,7 +636,7 @@ function verticalAndHorizontalChecks(color, i,j) {
     jCurr = j;
     while (iCurr < HEIGHT) {
         // Found a rook or queen
-        if (game.state[iCurr][jCurr] === attackingPieces[0] || game.state[iCurr][jCurr] === attackingPieces[1]) return true;
+        if (game.state[iCurr][jCurr] === attackingPieces[0] || game.state[iCurr][jCurr] === attackingPieces[1] || game.state[iCurr][jCurr] === attackingPieces[2]) return true;
         // Found another piece blocking, not checked
         if (!isEmpty(game.state[iCurr][jCurr])) break;
 
@@ -592,7 +648,7 @@ function verticalAndHorizontalChecks(color, i,j) {
     jCurr = j - 1;
     while (jCurr >= 0) {
        // Found a rook or queen
-       if (game.state[iCurr][jCurr] === attackingPieces[0] || game.state[iCurr][jCurr] === attackingPieces[1]) return true;
+       if (game.state[iCurr][jCurr] === attackingPieces[0] || game.state[iCurr][jCurr] === attackingPieces[1] || game.state[iCurr][jCurr] === attackingPieces[2]) return true;
         // Found another piece blocking, not checked
         if (!isEmpty(game.state[iCurr][jCurr])) break;
 
@@ -604,7 +660,7 @@ function verticalAndHorizontalChecks(color, i,j) {
     jCurr = j + 1;
     while (jCurr < WIDTH) {
         // Found a rook or queen
-        if (game.state[iCurr][jCurr] === attackingPieces[0] || game.state[iCurr][jCurr] === attackingPieces[1]) return true;
+        if (game.state[iCurr][jCurr] === attackingPieces[0] || game.state[iCurr][jCurr] === attackingPieces[1] || game.state[iCurr][jCurr] === attackingPieces[2]) return true;
         // Found another piece blocking, not checked
         if (!isEmpty(game.state[iCurr][jCurr])) break;
 
@@ -771,6 +827,17 @@ function isAttacked(color, i, j) {
     }
 
     return false;
+}
+
+// Checks if any squares in a position are moves
+function boardHasMoves() {
+    for (let i = 0; i < HEIGHT; i++) {
+        for (let j = 0; j < WIDTH; j++) {
+            if (isMoves(grid[i][j])) {
+                return true;
+            }
+        }
+    }
 }
 
 init_board();
