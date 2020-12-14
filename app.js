@@ -164,7 +164,7 @@ function control(square, i, j) {
         (game.blackToMove && isWhitePiece(square) && !isMoves(square))) {
         return;
     }
-    // If the given players king is in check, and the piece selected cannot move to exit check or the piece selected isnt an already selected move square
+    // If the given players king is in check, and the piece selected cannot move to exit check or the square selected isnt an already selected move square
     // invalid move
     if (game.whiteCheck && game.whiteToMove && (!game.set.has(square.id) && !isMoves(square))) {
         return;
