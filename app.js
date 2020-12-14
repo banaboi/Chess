@@ -46,6 +46,8 @@ class Game {
 
         // Check if black has checkmate
         if (this.whiteCheck) {
+            // Place all legal moves in set, if set is empty, checkmate
+            this.set.clear();
             if (!this.isCheckMate("w").size) {
                 console.log("Black is victorious");
                 this.finished = true;
@@ -54,6 +56,8 @@ class Game {
 
         // Check if white has check mate
         if (this.blackCheck) {
+            // Place all legal moves in set, if set is empty, checkmate
+            this.set.clear();
             if (!this.isCheckMate("b").size) {
                 console.log("White is victorious");
                 this.finished = true;
@@ -183,7 +187,7 @@ function control(square, i, j) {
         move(pieceToMove, square, i, j);
     }
 
-    game.set.clear();
+    
 }
 
 // Shows the valid moves for a given piece
