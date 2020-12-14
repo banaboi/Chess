@@ -177,7 +177,7 @@ function moveValidator(color, iPrev, jPrev, iNew, jNew, iKing, jKing, pieceBeing
 
 function knightMoves(color, i, j) {
 
-    // Logic is determined by which color knight is being moved
+    // Logic is determined by which color piece is being moved
     let iKing = (color === "w") ? game.whiteKingLocation.i : game.blackKingLocation.i;
     let jKing = (color === "w") ? game.whiteKingLocation.j : game.blackKingLocation.j;
     let knight = (color === "w") ? "Nw" : "Nb";
@@ -242,69 +242,23 @@ function knightMoves(color, i, j) {
 function blackPawnMoves(color, i, j) {
      // Pawn can move two spots if not moved
      if (i === 1 && i + 2 >= 0 && isEmpty(game.state[i+2][j]) && isEmpty(game.state[i+1][j])) {
-
-        // Simulate movement
-        let pieceTaken = game.state[i+2][j];
-        game.state[i+2][j] = "pb";
-        game.state[i][j] = " ";
-
-        // If the white king is attacked after move, illegal
-        if (!isAttacked("b", game.blackKingLocation.i, game.blackKingLocation.j)) {
-            grid[i+2][j].classList.add("moves");
-        }
-
-        game.state[i+2][j] = pieceTaken;
-        game.state[i][j] = "pb"
+        moveValidator(color, i, j, i+2, j, game.blackKingLocation.i, game.blackKingLocation.j, "pb");
         
     }
     // if there isnt a piece in front of pawn and the pawn isnt at end of board, valid move
     if (i + 1 < HEIGHT && isEmpty(game.state[i+1][j])) {
-
-        // Simulate movement
-        let pieceTaken = game.state[i+1][j];
-        game.state[i+1][j] = "pb";
-        game.state[i][j] = " ";
-
-        // If the white king is attacked after move, illegal
-        if (!isAttacked("b", game.blackKingLocation.i, game.blackKingLocation.j)) {
-            grid[i+1][j].classList.add("moves");
-        }
-        game.state[i+1][j] = pieceTaken;
-        game.state[i][j] = "pb"
+        moveValidator(color, i, j, i+1, j, game.blackKingLocation.i, game.blackKingLocation.j, "pb");
     }
 
     // if there is a white piece diagonally from pawn, valid capture
     // check left
     if (i + 1 < HEIGHT && j - 1 >= 0 && isOpposingPiece(color, grid[i+1][j-1])) {
-        // Simulate
-        let pieceTaken = game.state[i+1][j-1];
-        game.state[i+1][j-1] = "pb";
-        game.state[i][j] = " ";
-
-        // If the white king is attacked after move, illegal
-        if (!isAttacked("b", game.blackKingLocation.i, game.blackKingLocation.j)) {
-            grid[i+1][j-1].classList.add("moves");
-        }
-
-        game.state[i+1][j-1] = pieceTaken;
-        game.state[i][j] = "pb"
+        moveValidator(color, i, j, i+1, j-1, game.blackKingLocation.i, game.blackKingLocation.j, "pb");
     }
 
     // check right
     if (i + 1 < HEIGHT && j + 1 < WIDTH && isOpposingPiece(color,grid[i+1][j+1])) {
-       // Simulate
-       let pieceTaken = game.state[i+1][j-1];
-       game.state[i+1][j+1] = "pb";
-       game.state[i][j] = " ";
-
-       // If the white king is attacked after move, illegal
-       if (!isAttacked("b", game.blackKingLocation.i, game.blackKingLocation.j)) {
-           grid[i+1][j+1].classList.add("moves");
-       }
-
-       // Revert
-       game.state[i+1][j+1] = pieceTaken;
-       game.state[i][j] = "pb"
+        moveValidator(color, i, j, i+1, j+1, game.blackKingLocation.i, game.blackKingLocation.j, "pb");
     }
     
 }
@@ -313,85 +267,40 @@ function whitePawnMoves(color, i,j) {
 
     // Pawn can move two spots if not moved
     if (i === 6 && i - 2 >= 0 && isEmpty(game.state[i-2][j]) && isEmpty(game.state[i-1][j])) {
-
-        // Simulate movement
-        let pieceTaken = game.state[i - 2][j];
-        game.state[i-2][j] = "pw";
-        game.state[i][j] = " ";
-
-        // If the white king is attacked after move, illegal
-        if (!isAttacked("w", game.whiteKingLocation.i, game.whiteKingLocation.j)) {
-            grid[i-2][j].classList.add("moves");
-        } 
-
-        // Revert
-        game.state[i - 2][j] = pieceTaken;
-        game.state[i][j] = "pw";
+        moveValidator(color, i, j, i-2, j, game.whiteKingLocation.i, game.whiteKingLocation.j, "pw");
         
     }
     // if there isnt a piece in front of pawn and the pawn isnt at end of board, psuedo valid move
     if (i - 1 >= 0 && isEmpty(game.state[i-1][j])) {
-
-        // Simulate movement
-        let pieceTaken = game.state[i - 1][j];
-        game.state[i-1][j] = "pw";
-        game.state[i][j] = " ";
-
-        // If the white king is attacked after move, illegal
-        if (!isAttacked("w", game.whiteKingLocation.i, game.whiteKingLocation.j)) {
-            grid[i-1][j].classList.add("moves");
-        } 
-        // Revert
-        game.state[i - 1][j] = pieceTaken;
-        game.state[i][j] = "pw";
-        
+        moveValidator(color, i, j, i-1, j, game.whiteKingLocation.i, game.whiteKingLocation.j, "pw");
     }
 
     // if there is a black piece diagonally from pawn, valid capture
     // check left
     if (i - 1 >= 0 && j - 1 >= 0 && isOpposingPiece(color, grid[i-1][j-1])) {
+        moveValidator(color, i, j, i-1, j-1, game.whiteKingLocation.i, game.whiteKingLocation.j, "pw");
 
-        // Simulate 
-        let pieceTaken = game.state[i-1][j-1];
-        game.state[i-1][j-1] = "pw";
-        game.state[i][j] = " ";
-
-        // If the white king is attacked after move, illegal
-        if (!isAttacked("w", game.whiteKingLocation.i, game.whiteKingLocation.j)) {
-            grid[i-1][j-1].classList.add("moves");
-        } 
-
-        // Revert
-        game.state[i-1][j-1] = pieceTaken;
-        game.state[i][j] = "pw";
     }
 
     // check right
     if (i - 1 >= 0 && j + 1 < WIDTH && isOpposingPiece(color, grid[i-1][j+1])) {
+        moveValidator(color, i, j, i-1, j+1, game.whiteKingLocation.i, game.whiteKingLocation.j, "pw");
 
-        // Simulate 
-        let pieceTaken = game.state[i-1][j+1];
-        game.state[i-1][j+1] = "pw";
-        game.state[i][j] = " ";
-
-        // If the white king is attacked after move, illegal
-        if (!isAttacked("w", game.whiteKingLocation.i, game.whiteKingLocation.j)) {
-            grid[i-1][j+1].classList.add("moves");
-        } 
-
-        // Revert
-        game.state[i-1][j+1] = pieceTaken;
-        game.state[i][j] = "pw";
     }
 }
 
 function bishopMoves(color, i,j) {
 
+    // Logic is determined by which color piece is being moved
+    let iKing = (color === "w") ? game.whiteKingLocation.i : game.blackKingLocation.i;
+    let jKing = (color === "w") ? game.whiteKingLocation.j : game.blackKingLocation.j;
+    let bishop = (color === "w") ? "bw" : "bb";
+
     // Upper Left diagonal
     let iCurr = i - 1;
     let jCurr = j - 1;
     while (iCurr >= 0 && jCurr >= 0 && !isSamePiece(color, grid[iCurr][jCurr])) {
-        grid[iCurr][jCurr].classList.add("moves");
+        moveValidator(color, i, j, iCurr, jCurr, iKing, jKing, bishop);
         if (isOpposingPiece(color, grid[iCurr][jCurr])) break;
 
         iCurr--;
@@ -403,7 +312,7 @@ function bishopMoves(color, i,j) {
     iCurr = i - 1;
     jCurr = j + 1;
     while (iCurr >= 0 && jCurr < WIDTH && !isSamePiece(color, grid[iCurr][jCurr])) {
-        grid[iCurr][jCurr].classList.add("moves");
+        moveValidator(color, i, j, iCurr, jCurr, iKing, jKing, bishop);
         if (isOpposingPiece(color, grid[iCurr][jCurr])) break;
 
         iCurr--;
@@ -414,7 +323,7 @@ function bishopMoves(color, i,j) {
     iCurr = i + 1;
     jCurr = j - 1;
     while (iCurr < HEIGHT && jCurr >= 0 && !isSamePiece(color, grid[iCurr][jCurr])) {
-        grid[iCurr][jCurr].classList.add("moves");
+        moveValidator(color, i, j, iCurr, jCurr, iKing, jKing, bishop);
         if (isOpposingPiece(color, grid[iCurr][jCurr])) break;
 
         iCurr++;
@@ -425,7 +334,7 @@ function bishopMoves(color, i,j) {
     iCurr = i + 1;
     jCurr = j + 1;
     while (iCurr < HEIGHT && jCurr < WIDTH && !isSamePiece(color, grid[iCurr][jCurr])) {
-        grid[iCurr][jCurr].classList.add("moves");
+        moveValidator(color, i, j, iCurr, jCurr, iKing, jKing, bishop);
         if (isOpposingPiece(color, grid[iCurr][jCurr])) break;
 
         iCurr++;
@@ -434,11 +343,17 @@ function bishopMoves(color, i,j) {
 }
 
 function rookMoves(color, i,j) {
+
+    // Logic is determined by which color piece is being moved
+    let iKing = (color === "w") ? game.whiteKingLocation.i : game.blackKingLocation.i;
+    let jKing = (color === "w") ? game.whiteKingLocation.j : game.blackKingLocation.j;
+    let rook = (color === "w") ? "rw" : "rb";
+
     // Up 
     let iCurr = i - 1;
     let jCurr = j;
     while (iCurr >= 0 && !isSamePiece(color, grid[iCurr][jCurr])) {
-        grid[iCurr][jCurr].classList.add("moves");
+        moveValidator(color, i, j, iCurr, jCurr, iKing, jKing, rook);
         if (isOpposingPiece(color, grid[iCurr][jCurr])) break;
 
         iCurr--;
@@ -449,7 +364,7 @@ function rookMoves(color, i,j) {
     iCurr = i + 1;
     jCurr = j;
     while (iCurr < HEIGHT && !isSamePiece(color, grid[iCurr][jCurr])) {
-        grid[iCurr][jCurr].classList.add("moves");
+        moveValidator(color, i, j, iCurr, jCurr, iKing, jKing, rook);
         if (isOpposingPiece(color, grid[iCurr][jCurr])) break;
 
         iCurr++;
@@ -459,7 +374,7 @@ function rookMoves(color, i,j) {
     iCurr = i;
     jCurr = j - 1;
     while (jCurr >= 0 && !isSamePiece(color, grid[iCurr][jCurr])) {
-        grid[iCurr][jCurr].classList.add("moves");
+        moveValidator(color, i, j, iCurr, jCurr, iKing, jKing, rook);
         if (isOpposingPiece(color, grid[iCurr][jCurr])) break;
 
         jCurr--;
@@ -469,7 +384,7 @@ function rookMoves(color, i,j) {
     iCurr = i;
     jCurr = j + 1;
     while (jCurr < WIDTH && !isSamePiece(color, grid[iCurr][jCurr])) {
-        grid[iCurr][jCurr].classList.add("moves");
+        moveValidator(color, i, j, iCurr, jCurr, iKing, jKing, rook);
         if (isOpposingPiece(color, grid[iCurr][jCurr])) break;
 
         jCurr++;
@@ -489,9 +404,9 @@ function kingMoves(color, i,j) {
     }
 }
 
-function squaresAreEmpty(start,end, i) {
+function squaresAllowCastling(color, start,end, i) {
     for (let j = start; j < end; j++) {
-        if (!isEmpty(game.state[i][j])) {
+        if (!isEmpty(game.state[i][j]) || isAttacked(color, i, j)) {
             return false;
         }
     }
@@ -700,22 +615,22 @@ function verticalAndHorizontalChecks(color, i,j) {
 // Checks castling rights
 function checkCastlingRights(color) {
     // Check left white
-    if (color === "w" && !whiteKingMoved && !whiteLeftRookMoved && squaresAreEmpty(1, 4, 7)) {
+    if (color === "w" && !whiteKingMoved && !whiteLeftRookMoved && squaresAllowCastling(color, 1, 4, 7)) {
         // Can castle, highlight A3
         document.getElementById("C1").classList.add("castle");
     }
     // Check right white
-    if (color === "w" && !whiteKingMoved && !whiteRightRookMoved && squaresAreEmpty(5, 7, 7)) {
+    if (color === "w" && !whiteKingMoved && !whiteRightRookMoved && squaresAllowCastling(color, 5, 7, 7)) {
         // Can castle, highlight, A7
         document.getElementById("G1").classList.add("castle");
     }
     // Check left black
-    if (color === "b" && !blackKingMoved && !blackLeftRookMoved && squaresAreEmpty(1, 4, 0)) {
+    if (color === "b" && !blackKingMoved && !blackLeftRookMoved && squaresAllowCastling(color, 1, 4, 0)) {
         // Can castle, highlight, A7
         document.getElementById("C8").classList.add("castle");
     }
     // Check right black
-    if (color === "b" && !blackKingMoved && !blackRightRookMoved && squaresAreEmpty(5, 7, 0)) {
+    if (color === "b" && !blackKingMoved && !blackRightRookMoved && squaresAllowCastling(color, 5, 7, 0)) {
         // Can castle, highlight, A7
         document.getElementById("G8").classList.add("castle");
     }
