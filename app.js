@@ -61,6 +61,13 @@ class Game {
             }
             
         }
+
+        // Check for stalemate
+        if (this.whiteToMove && this.isStalemate("w")) {
+            this.announceStalemate();
+        } else if (this.blackToMove && this.isStalemate("b")) {
+            this.announceStalemate();
+        }
         
         
     }
@@ -81,6 +88,24 @@ class Game {
 
         return this.legalMoves;
     } 
+    // Checks if there is stalemate in the current position
+    isStalemate(color) {
+        for (let i = 0; i < HEIGHT; i++) {
+            for (let j = 0; j < WIDTH; j++) {
+                // If the piece is the same color, generate all possible moves
+                if (!isEmpty(this.state[i][j]) && this.state[i][j].substring(1) === color) {
+                    showValidMoves(grid[i][j], i, j);
+                    if (boardHasMoves()) {
+                        reset();
+                        return false;
+                    } 
+                    reset();
+                }
+            }
+        }
+
+        return true;
+    }
     
     announceCheckmate(color) {
         if (color === "w") {
@@ -689,7 +714,7 @@ function kingChecks(color, i,j) {
     let attackingPiece = (color === "w") ? "kb" : "kw";
     for (let iCurr = i - 1; iCurr < i + 2; iCurr++) {
         for (let jCurr = j - 1; jCurr < j + 2; jCurr++) {
-            if (iCurr != i && jCurr != j) {
+            if (iCurr < HEIGHT && jCurr < WIDTH && iCurr >= 0 && jCurr >= 0 && iCurr != i && jCurr != j) {
                 if (game.state[iCurr][jCurr] === attackingPiece) return true;
             }
             
