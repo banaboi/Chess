@@ -46,7 +46,9 @@ const store = {
   settings: {
     humanColor: "w",
     difficulty: "medium",
+    premovePromotion: "q",
   },
+  preMove: null,
   game: createGameState(),
   castling: createCastlingState(),
   pieceToMove: {
@@ -68,6 +70,7 @@ function resetStoreGameState() {
   store.game = createGameState();
   store.castling = createCastlingState();
   store.pieceToMove = { i: 0, j: 0, location: null };
+  store.preMove = null;
   store.drag = {
     isDragging: false,
     ghost: null,
@@ -78,13 +81,19 @@ function resetStoreGameState() {
   };
 }
 
-function updateSettings({ humanColor, difficulty } = {}) {
+const PREMOVE_PROMOTION_VALUES = ["q", "r", "b", "N"];
+
+function updateSettings({ humanColor, difficulty, premovePromotion } = {}) {
   if (humanColor === "w" || humanColor === "b") {
     store.settings.humanColor = humanColor;
   }
 
   if (["easy", "medium", "hard"].includes(difficulty)) {
     store.settings.difficulty = difficulty;
+  }
+
+  if (premovePromotion !== undefined && PREMOVE_PROMOTION_VALUES.includes(premovePromotion)) {
+    store.settings.premovePromotion = premovePromotion;
   }
 }
 

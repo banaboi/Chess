@@ -115,3 +115,69 @@ describe("Capture state", () => {
     expect(store.game.capturedByBlack).toHaveLength(0);
   });
 });
+
+describe("Pre-move: cancelPreMove", () => {
+  test("returns false when no pre-move is queued", () => {
+    const { store, gameplay } = loadCoreModules();
+    store.preMove = null;
+    expect(gameplay.cancelPreMove()).toBe(false);
+  });
+
+  test("returns true and clears store.preMove when a pre-move was queued", () => {
+    const { store, gameplay } = loadCoreModules();
+    store.preMove = { fromRow: 6, fromCol: 4, toRow: 4, toCol: 4 };
+    expect(gameplay.cancelPreMove()).toBe(true);
+    expect(store.preMove).toBeNull();
+  });
+});
+
+describe("Pre-move: tryExecutePreMove", () => {
+  function buildMinimalGrid(store) {
+    const { COLUMNS, ROWS } = require("../src/constants.js");
+    store.grid = [];
+    for (let row = 0; row < 8; row++) {
+      store.grid[row] = [];
+      for (let col = 0; col < 8; col++) {
+        const square = document.createElement("div");
+        square.id = COLUMNS[col] + ROWS[row];
+        square.classList.add((row + col) % 2 === 0 ? "light-square" : "dark-square");
+        square.classList.add(store.game.state[row][col] === " " ? "empty" : store.game.state[row][col]);
+        store.grid[row][col] = square;
+      }
+    }
+  }
+
+  test("does nothing when store.preMove is null", () => {
+    const { store, gameplay } = loadCoreModules();
+    store.preMove = null;
+    buildMinimalGrid(store);
+    expect(() => gameplay.tryExecutePreMove()).not.toThrow();
+  });
+
+  test("clears pre-move when queued move is not legal on current board", () => {
+    const { store, resetStoreGameState, gameplay } = loadCoreModules();
+    resetStoreGameState();
+    store.settings.humanColor = "w";
+    store.game.whiteToMove = true;
+    store.game.blackToMove = false;
+    buildMinimalGrid(store);
+    store.preMove = { fromRow: 0, fromCol: 0, toRow: 0, toCol: 0 };
+    gameplay.tryExecutePreMove();
+    expect(store.preMove).toBeNull();
+  });
+
+  test("executes pre-move when it is still legal (e2-e4 from initial position)", () => {
+    const { store, resetStoreGameState, gameplay } = loadCoreModules();
+    resetStoreGameState();
+    store.settings.humanColor = "w";
+    store.game.whiteToMove = true;
+    store.game.blackToMove = false;
+    buildMinimalGrid(store);
+    store.preMove = { fromRow: 6, fromCol: 4, toRow: 4, toCol: 4 };
+    gameplay.tryExecutePreMove();
+    expect(store.preMove).toBeNull();
+    expect(store.game.state[6][4]).toBe(" ");
+    expect(store.game.state[4][4]).toBe("pw");
+    expect(store.game.whiteToMove).toBe(false);
+  });
+});

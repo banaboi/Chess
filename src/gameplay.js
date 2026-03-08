@@ -3,7 +3,7 @@ const { HEIGHT, WIDTH, COLUMNS, ROWS, PIECE_VALUES } = window.ChessConstants;
 const { store, resetStoreGameState, updateSettings } = window.ChessStore;
 const { playCaptureSound, playMoveSound, playCheckAlertSound } = window.ChessAudio;
 const { showGameOverModal, hideGameOverModal, showPromotionModal, hidePromotionModal } = window.ChessModal;
-const { clearHighlights, syncPiecesFromState, applyHighlights, updateCaptureAnnotation } = window.ChessUI;
+const { clearHighlights, syncPiecesFromState, applyHighlights, applyPreMoveHighlight, clearPreMoveHighlight, updateCaptureAnnotation } = window.ChessUI;
 const { isAttacked, showValidMoves, getValidMoves } = window.ChessRules;
 const { boardHasMoves, isBlackPiece, isEmpty, isMoves, isReady, isWhitePiece } = window.ChessUtils;
 const { boardToFen: notationBoardToFen, parseUciMove: notationParseUciMove } = window.ChessNotation;
@@ -209,7 +209,7 @@ function syncCastlingRookDom(destinationSquare) {
 }
 
 function move(destinationSquare, row, col, options = {}) {
-  const { isEngineMove = false, promotionType = "q" } = options;
+  const { isEngineMove = false, isPreMoveExecution = false, promotionType = "q", isCastle: optionsIsCastle } = options;
   const fromRow = store.pieceToMove.i;
   const fromCol = store.pieceToMove.j;
   const capture = !isEmpty(store.game.state[row][col]);
@@ -227,9 +227,9 @@ function move(destinationSquare, row, col, options = {}) {
 
   const fromSquare = store.pieceToMove.location;
   const pieceClass = fromSquare.classList[1];
-  const isCastle = destinationSquare.classList.contains("castle");
-  const promotionPieceCode =
-    isEngineMove && isPromotionMove(pieceClass, row) ? promotionType + pieceClass[1] : undefined;
+  const isCastle = optionsIsCastle !== undefined ? optionsIsCastle : destinationSquare.classList.contains("castle");
+  const usePromotionType = (isEngineMove || isPreMoveExecution) && isPromotionMove(pieceClass, row);
+  const promotionPieceCode = usePromotionType ? promotionType + pieceClass[1] : undefined;
 
   fromSquare.classList.remove(pieceClass, "ready");
   fromSquare.classList.add("empty");
@@ -254,7 +254,7 @@ function move(destinationSquare, row, col, options = {}) {
   clearHighlights();
 
   if (isPromotionMove(pieceClass, row)) {
-    if (isEngineMove) {
+    if (isEngineMove || isPreMoveExecution) {
       incrementGame();
       updateCaptureAnnotation();
       return;
@@ -519,6 +519,44 @@ async function performEngineMove(requestId) {
     isEngineMove: true,
     promotionType: selectedPromotion,
   });
+
+  isEngineTurnInProgress = false;
+  tryExecutePreMove();
+}
+
+/**
+ * If a pre-move is queued, checks whether it is still legal on the current board.
+ * If so, executes it (state, DOM, sounds, turn increment); otherwise discards it.
+ * Clears the queued pre-move and its visual in all cases.
+ */
+function tryExecutePreMove() {
+  if (!store.preMove) return;
+
+  const legalMoves = getLegalMovesForColor(store.settings.humanColor);
+  const pm = store.preMove;
+  const matching = legalMoves.find(
+    (m) =>
+      m.fromRow === pm.fromRow &&
+      m.fromCol === pm.fromCol &&
+      m.toRow === pm.toRow &&
+      m.toCol === pm.toCol
+  );
+
+  store.preMove = null;
+  clearPreMoveHighlight();
+
+  if (!matching) return;
+
+  const promotionType = pm.promotionType ?? store.settings.premovePromotion;
+  store.pieceToMove.i = matching.fromRow;
+  store.pieceToMove.j = matching.fromCol;
+  store.pieceToMove.location = matching.fromSquare;
+  updateCastlingStateVariables();
+  move(matching.toSquare, matching.toRow, matching.toCol, {
+    isPreMoveExecution: true,
+    promotionType,
+    isCastle: matching.isCastle,
+  });
 }
 
 function maybeRunEngineTurn() {
@@ -537,55 +575,105 @@ function maybeRunEngineTurn() {
   }, 260);
 }
 
+/**
+ * Cancels the queued pre-move (if any): clears store.preMove and pre-move highlight.
+ * @returns {boolean} true if a pre-move was cancelled, false if none was queued.
+ */
+function cancelPreMove() {
+  if (!store.preMove) return false;
+  store.preMove = null;
+  clearPreMoveHighlight();
+  clearHighlights();
+  return true;
+}
+
 function control(square, row, col) {
   if (isPromotionPending) return;
   if (store.game.finished) return;
-  if (!isHumanTurn()) return;
 
-  const checkedColor = currentCheckedSideToMove();
-  if (checkedColor && !isMoves(square) && !store.game.legalMoves.has(square.id)) {
-    playCheckRestrictionFeedback(checkedColor);
+  if (isHumanTurn()) {
+    const checkedColor = currentCheckedSideToMove();
+    if (checkedColor && !isMoves(square) && !store.game.legalMoves.has(square.id)) {
+      playCheckRestrictionFeedback(checkedColor);
+      return;
+    }
+
+    if (
+      (store.game.whiteToMove && isBlackPiece(square) && !isMoves(square)) ||
+      (store.game.blackToMove && isWhitePiece(square) && !isMoves(square))
+    ) {
+      return;
+    }
+
+    if (!isEmpty(store.game.state[row][col]) && !isReady(square) && !isMoves(square)) {
+      clearHighlights();
+      square.classList.add("ready");
+      store.pieceToMove.i = row;
+      store.pieceToMove.j = col;
+      store.pieceToMove.location = square;
+      const result = showValidMoves(square, row, col);
+      applyHighlights(result.moveKeys, result.castleIds);
+    }
+
+    if (isMoves(square) || square.classList.contains("castle")) {
+      updateCastlingStateVariables();
+      move(square, row, col);
+    }
     return;
   }
 
-  if (
-    (store.game.whiteToMove && isBlackPiece(square) && !isMoves(square)) ||
-    (store.game.blackToMove && isWhitePiece(square) && !isMoves(square))
-  ) {
+  // Pre-move path: during engine's turn, allow selecting a friendly piece and a legal
+  // destination to queue one move; cancel pre-move by clicking another friendly piece.
+  const humanColor = store.settings.humanColor;
+  if (store.preMove && !isEmpty(store.game.state[row][col]) && store.game.state[row][col].substring(1) === humanColor) {
+    cancelPreMove();
     return;
   }
 
-  if (!isEmpty(store.game.state[row][col]) && !isReady(square) && !isMoves(square)) {
+  if (!isEmpty(store.game.state[row][col]) && store.game.state[row][col].substring(1) === humanColor) {
     clearHighlights();
+    clearPreMoveHighlight();
     square.classList.add("ready");
     store.pieceToMove.i = row;
     store.pieceToMove.j = col;
     store.pieceToMove.location = square;
     const result = showValidMoves(square, row, col);
     applyHighlights(result.moveKeys, result.castleIds);
+    return;
   }
 
-  if (isMoves(square) || square.classList.contains("castle")) {
-    updateCastlingStateVariables();
-    move(square, row, col);
+  if (store.pieceToMove.location && (isMoves(square) || square.classList.contains("castle"))) {
+    const fromRow = store.pieceToMove.i;
+    const fromCol = store.pieceToMove.j;
+    const pieceClass = store.pieceToMove.location.classList[1];
+    const promotionType = isPromotionMove(pieceClass, row) ? store.settings.premovePromotion : undefined;
+    store.preMove = { fromRow, fromCol, toRow: row, toCol: col, promotionType };
+    applyPreMoveHighlight(store.pieceToMove.location, square);
+    clearHighlights();
+    return;
   }
+
+  clearHighlights();
+  clearPreMoveHighlight();
 }
 
 function handleDragStart(event, square, row, col) {
   if (isPromotionPending) return;
   if (store.game.finished) return;
-  if (!isHumanTurn()) return;
   if (isEmpty(store.game.state[row][col])) return;
 
-  const checkedColor = currentCheckedSideToMove();
-  if (checkedColor && !store.game.legalMoves.has(square.id)) {
-    playCheckRestrictionFeedback(checkedColor);
-    return;
+  if (isHumanTurn()) {
+    const checkedColor = currentCheckedSideToMove();
+    if (checkedColor && !store.game.legalMoves.has(square.id)) {
+      playCheckRestrictionFeedback(checkedColor);
+      return;
+    }
+    const pieceColor = store.game.state[row][col].substring(1);
+    if (store.game.whiteToMove && pieceColor === "b") return;
+    if (store.game.blackToMove && pieceColor === "w") return;
+  } else {
+    if (store.game.state[row][col].substring(1) !== store.settings.humanColor) return;
   }
-
-  const pieceColor = store.game.state[row][col].substring(1);
-  if (store.game.whiteToMove && pieceColor === "b") return;
-  if (store.game.blackToMove && pieceColor === "w") return;
 
   event.preventDefault();
   store.drag.isDragging = true;
@@ -667,12 +755,24 @@ function handleDragEnd(event) {
   }
 
   if (targetSquare && store.drag.moved && (isMoves(targetSquare) || targetSquare.classList.contains("castle"))) {
-    updateCastlingStateVariables();
-    move(targetSquare, targetRow, targetCol);
+    if (isHumanTurn()) {
+      updateCastlingStateVariables();
+      move(targetSquare, targetRow, targetCol);
+    } else {
+      const fromRow = store.drag.sourceI;
+      const fromCol = store.drag.sourceJ;
+      const pieceClass = store.pieceToMove.location?.classList?.[1];
+      const promotionType = pieceClass && isPromotionMove(pieceClass, targetRow) ? store.settings.premovePromotion : undefined;
+      store.preMove = { fromRow, fromCol, toRow: targetRow, toCol: targetCol, promotionType };
+      applyPreMoveHighlight(store.drag.source, targetSquare);
+      clearHighlights();
+    }
   } else if (store.drag.moved) {
-    const checkedColor = currentCheckedSideToMove();
-    if (checkedColor) {
-      playCheckRestrictionFeedback(checkedColor);
+    if (isHumanTurn()) {
+      const checkedColor = currentCheckedSideToMove();
+      if (checkedColor) {
+        playCheckRestrictionFeedback(checkedColor);
+      }
     }
     clearHighlights();
   }
@@ -693,6 +793,7 @@ function resetGame() {
   if (typeof startNewGame === "function") {
     startNewGame();
   }
+  clearPreMoveHighlight();
   clearHighlights();
   syncPiecesFromState();
   updateCaptureAnnotation();
@@ -714,6 +815,7 @@ function startGameWithPreferences({ humanColor, difficulty } = {}) {
 window.ChessGameplay = {
   control,
   handleDragStart,
+  cancelPreMove,
   resetGame,
   setPreferences,
   startGameWithPreferences,
@@ -723,6 +825,7 @@ window.ChessGameplay = {
   scoreMove,
   chooseEngineMove,
   incrementGame,
+  tryExecutePreMove,
 };
 })();
 

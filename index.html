@@ -25,6 +25,23 @@
             </select>
 
             <button id="startGameBtn" type="button">Start Game</button>
+
+            <button id="settingsToggleBtn" type="button" class="settings-toggle" aria-label="Settings" aria-expanded="false" title="Settings">
+                <i class="fa fa-cog" aria-hidden="true"></i>
+            </button>
+        </div>
+
+        <div class="settings-panel" id="settingsPanel" aria-label="Settings" hidden>
+            <h3 class="settings-panel-title">Settings</h3>
+            <div class="settings-row">
+                <label for="premovePromotionSelect">Pre-move promotion</label>
+                <select id="premovePromotionSelect">
+                    <option value="q">Queen</option>
+                    <option value="r">Rook</option>
+                    <option value="b">Bishop</option>
+                    <option value="N">Knight</option>
+                </select>
+            </div>
         </div>
         <div class="game-area">
             <div class="board-wrapper">

@@ -57,6 +57,63 @@
     background: #555;
   }
 
+  .settings-toggle {
+    margin-left: auto;
+    padding: 8px 12px;
+    background: transparent;
+    color: #333;
+    border: 1px solid #333;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 18px;
+  }
+
+  .settings-toggle:hover {
+    background: #f0f0f0;
+  }
+
+  .settings-panel {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto 16px;
+    padding: 16px 20px;
+    border: 1px solid #333;
+    border-radius: 8px;
+    background: #fafafa;
+    font-family: monospace;
+  }
+
+  .settings-panel[hidden] {
+    display: none;
+  }
+
+  .settings-panel-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 12px;
+  }
+
+  .settings-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .settings-row label {
+    font-size: 14px;
+    font-weight: bold;
+  }
+
+  .settings-row select {
+    font-family: monospace;
+    font-size: 14px;
+    padding: 6px 10px;
+    border: 1px solid #333;
+    border-radius: 4px;
+    background: white;
+  }
+
   .game-area {
     display: flex;
     align-items: flex-start;
@@ -307,6 +364,14 @@
 
   .castle {
     background-color: gold;
+  }
+
+  .premove-from {
+    background-color: rgba(255, 200, 0, 0.6);
+  }
+
+  .premove-to {
+    background-color: rgba(255, 180, 0, 0.8);
   }
 
   .king-check-flash {

@@ -6,7 +6,7 @@ function squareClassForPosition(row, col) {
   return (row + col) % 2 === 0 ? "light-square" : "dark-square";
 }
 
-function initBoard({ onSquareClick, onSquarePointerDown }) {
+function initBoard({ onSquareClick, onSquarePointerDown, onContextMenu }) {
   store.boardElement = document.querySelector(".board");
   store.grid.length = 0;
   store.boardElement.innerHTML = "";
@@ -27,6 +27,12 @@ function initBoard({ onSquareClick, onSquarePointerDown }) {
 
       square.addEventListener("mousedown", (event) => {
         onSquarePointerDown(event, square, row, col);
+      });
+
+      square.addEventListener("contextmenu", (event) => {
+        if (typeof onContextMenu === "function" && onContextMenu(square, row, col)) {
+          event.preventDefault();
+        }
       });
 
       square.addEventListener(
@@ -76,7 +82,22 @@ function syncPiecesFromState() {
 function clearHighlights() {
   for (let row = 0; row < HEIGHT; row++) {
     for (let col = 0; col < WIDTH; col++) {
-      store.grid[row][col].classList.remove("ready", "moves", "castle", "dragging", "king-check-flash");
+      store.grid[row][col].classList.remove("ready", "moves", "castle", "dragging", "king-check-flash", "premove-from", "premove-to");
+    }
+  }
+}
+
+function applyPreMoveHighlight(fromSquare, toSquare) {
+  clearPreMoveHighlight();
+  if (fromSquare) fromSquare.classList.add("premove-from");
+  if (toSquare) toSquare.classList.add("premove-to");
+}
+
+function clearPreMoveHighlight() {
+  if (!store.grid.length) return;
+  for (let row = 0; row < HEIGHT; row++) {
+    for (let col = 0; col < WIDTH; col++) {
+      store.grid[row][col].classList.remove("premove-from", "premove-to");
     }
   }
 }
@@ -192,6 +213,8 @@ window.ChessUI = {
   syncPiecesFromState,
   clearHighlights,
   applyHighlights,
+  applyPreMoveHighlight,
+  clearPreMoveHighlight,
   updateCaptureAnnotation,
   updateBoardOrientation,
 };
