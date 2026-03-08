@@ -26,6 +26,10 @@ function bootstrap() {
     });
   }
 
+  if (typeof ui.updateBoardOrientation === "function") {
+    ui.updateBoardOrientation();
+  }
+
   if (startGameButton && typeof gameplay.startGameWithPreferences === "function") {
     startGameButton.addEventListener("click", () => {
       gameplay.startGameWithPreferences({

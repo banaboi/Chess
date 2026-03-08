@@ -75,6 +75,10 @@
     min-width: 140px;
   }
 
+  .capture-tallies.reversed {
+    flex-direction: column-reverse;
+  }
+
   .capture-panel {
     min-width: 120px;
     max-width: 200px;
@@ -133,6 +137,27 @@
     grid-template-rows: 1fr auto;
     gap: 0;
     width: fit-content;
+  }
+
+  .board-wrapper.flipped {
+    transform: rotate(180deg);
+  }
+
+  .board-wrapper.flipped .cols {
+    direction: rtl;
+  }
+
+  /* Counter-rotate so pieces and labels stay right-side up for the player */
+  .board-wrapper.flipped .board > * {
+    transform: rotate(180deg);
+  }
+
+  .board-wrapper.flipped .rows .row {
+    transform: rotate(180deg);
+  }
+
+  .board-wrapper.flipped .cols .col {
+    transform: rotate(180deg);
   }
 
   .rows {

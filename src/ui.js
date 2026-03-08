@@ -173,12 +173,27 @@ function updateCaptureAnnotation() {
   scoreBlack.textContent = blackAdvantage ? "+" + blackAdvantage : "";
 }
 
+function updateBoardOrientation() {
+  const wrapper = document.querySelector(".board-wrapper");
+  const captureTallies = document.querySelector(".capture-tallies");
+  const flipped = store.settings.humanColor === "b";
+  if (wrapper) {
+    if (flipped) wrapper.classList.add("flipped");
+    else wrapper.classList.remove("flipped");
+  }
+  if (captureTallies) {
+    if (flipped) captureTallies.classList.add("reversed");
+    else captureTallies.classList.remove("reversed");
+  }
+}
+
 window.ChessUI = {
   initBoard,
   syncPiecesFromState,
   clearHighlights,
   applyHighlights,
   updateCaptureAnnotation,
+  updateBoardOrientation,
 };
 })();
 

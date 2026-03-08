@@ -705,6 +705,9 @@ function setPreferences({ humanColor, difficulty } = {}) {
 
 function startGameWithPreferences({ humanColor, difficulty } = {}) {
   setPreferences({ humanColor, difficulty });
+  if (window.ChessUI && typeof window.ChessUI.updateBoardOrientation === "function") {
+    window.ChessUI.updateBoardOrientation();
+  }
   resetGame();
 }
 
