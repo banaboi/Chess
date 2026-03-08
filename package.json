@@ -1,0 +1,21 @@
+{
+  "name": "chess",
+  "version": "1.0.0",
+  "description": "Vanilla JavaScript chess game with Stockfish engine integration.",
+  "main": "app.js",
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch"
+  },
+  "keywords": [
+    "chess",
+    "stockfish",
+    "vanilla-js"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^30.2.0"
+  }
+}

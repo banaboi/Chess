@@ -10,31 +10,105 @@
     </head>
     <body>
         <header>Chess</header>
-        <div class="board">
+        <div class="game-setup" aria-label="Game setup">
+            <label for="playerColorSelect">Play as</label>
+            <select id="playerColorSelect">
+                <option value="w">White</option>
+                <option value="b">Black</option>
+            </select>
 
+            <label for="difficultySelect">Difficulty</label>
+            <select id="difficultySelect">
+                <option value="easy">Easy</option>
+                <option value="medium" selected>Medium</option>
+                <option value="hard">Hard</option>
+            </select>
+
+            <button id="startGameBtn" type="button">Start Game</button>
         </div>
-        <div class = "rows">
-            <div class = "row"> 8 </div>
-            <div class = "row"> 7 </div>
-            <div class = "row"> 6 </div>
-            <div class = "row"> 5 </div>
-            <div class = "row"> 4 </div>
-            <div class = "row"> 3 </div>
-            <div class = "row"> 2 </div>
-            <div class = "row"> 1 </div>
-        </div>
-        
-        <div class="cols">
-            <div class="col"> A </div>
-            <div class="col"> B </div>
-            <div class="col"> C </div>
-            <div class="col"> D </div>
-            <div class="col"> E </div>
-            <div class="col"> F </div>
-            <div class="col"> G </div>
-            <div class="col"> H </div>
+        <div class="game-area">
+            <div class="board-wrapper">
+            <div class="rows">
+                <div class="row"> 8 </div>
+                <div class="row"> 7 </div>
+                <div class="row"> 6 </div>
+                <div class="row"> 5 </div>
+                <div class="row"> 4 </div>
+                <div class="row"> 3 </div>
+                <div class="row"> 2 </div>
+                <div class="row"> 1 </div>
+            </div>
+            <div class="board">
+
+            </div>
+            <div class="cols">
+                <div class="col"> A </div>
+                <div class="col"> B </div>
+                <div class="col"> C </div>
+                <div class="col"> D </div>
+                <div class="col"> E </div>
+                <div class="col"> F </div>
+                <div class="col"> G </div>
+                <div class="col"> H </div>
+            </div>
+            </div>
+            <div class="capture-tallies">
+                <div class="capture-panel capture-panel-black" aria-label="Pieces captured by Black">
+                    <div class="capture-list" id="captureListBlack" role="list"></div>
+                    <span class="capture-score" id="captureScoreBlack" aria-live="polite"></span>
+                </div>
+                <div class="capture-panel capture-panel-white" aria-label="Pieces captured by White">
+                    <div class="capture-list" id="captureListWhite" role="list"></div>
+                    <span class="capture-score" id="captureScoreWhite" aria-live="polite"></span>
+                </div>
+            </div>
         </div>
 
+        <!-- Game over modal -->
+        <div class="modal-overlay" id="gameOverModal">
+            <div class="modal">
+                <h2 id="modalMessage"></h2>
+                <button id="playAgainBtn">Play Again?</button>
+            </div>
+        </div>
+
+        <!-- Promotion modal -->
+        <div class="modal-overlay" id="promotionModal">
+            <div class="modal promotion-modal">
+                <h2>Choose Promotion</h2>
+                <div class="promotion-options">
+                    <button class="promotion-choice" data-piece="q" aria-label="Promote to Queen">
+                        <span class="promotion-piece"></span>
+                        <span>Queen</span>
+                    </button>
+                    <button class="promotion-choice" data-piece="r" aria-label="Promote to Rook">
+                        <span class="promotion-piece"></span>
+                        <span>Rook</span>
+                    </button>
+                    <button class="promotion-choice" data-piece="b" aria-label="Promote to Bishop">
+                        <span class="promotion-piece"></span>
+                        <span>Bishop</span>
+                    </button>
+                    <button class="promotion-choice" data-piece="N" aria-label="Promote to Knight">
+                        <span class="promotion-piece"></span>
+                        <span>Knight</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <script src="src/constants.js"></script>
+        <script src="src/store.js"></script>
+        <script src="src/captures.js"></script>
+        <script src="src/notation.js"></script>
+        <script src="src/audio.js"></script>
+        <script src="src/modal.js"></script>
+        <script src="src/utils.js"></script>
+        <script src="src/ui.js"></script>
+        <script src="src/rules.js"></script>
+        <script src="src/engine.js"></script>
+        <script src="src/moveApplier.js"></script>
+        <script src="src/gameplay.js"></script>
+        <script src="app.js"></script>
     </body>
-    <script src = "/Chess/app.js" charset="utf-8"></script>
 </html>
